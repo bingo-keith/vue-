@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>init demo</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <!--this is comment-->  {{ message }}
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+             return  {
+                 message: 'Hello World!'
+             }
+        },
+    })
+</script>
+</body>
+</html>
