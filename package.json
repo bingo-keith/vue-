@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/bingo-keith/vue-code-study#readme",
   "devDependencies": {
+    "browser-sync": "^2.26.7",
     "webpack": "^4.35.2",
     "webpack-cli": "^3.3.5",
     "webpack-dev-server": "^3.7.2"
