@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>vue_idea</title>
+</head>
+
+<body>
+  <div id="test">
+    <p>{{msg}}</p>
+    <p>{{what}}</p>
+    <p >{{hey}}</p>
+  </div>
+  <script>
+
+    var bindingMark = 'data-element-binding';
+
+    function Element(id, initData) {
+      var self = this,
+          el = self.el = document.getElementById(id),
+          bindings = {},
+          data = self.data = {},
+          content = el.innerHTML.replace(/\{\{(.*)\}\}/g, markToken);
+      // 3 把{{}}渲染成DOM
+      el.innerHTML = content;
+      // 4 双向数据绑定
+      for(var variable in bindings) {
+        bind(variable);
+      }
+      // 7 把入参保存到data，方便使用 defineProperty实现双向数据绑定
+      if(initData) {
+        console.log(initData);
+        for(var variable in initData) {
+          data[variable] = initData[variable];
+        }
+      }
+      
+      function markToken(match, variable) {
+        // 1 缓存模版中的{{}}到bindings
+        bindings[variable] = {};
+        // 2 把{{}}渲染成DOM
+        return '<span '+ bindingMark + '="' + variable +'"></span>';
+      }
+
+      function bind(variable) {
+        bindings[variable].els = el.querySelectorAll('['+bindingMark + '="' + variable +'"]');
+        // 5 {{}}渲染完成后移除手动增加的 data-element-binding 属性
+        [].forEach.call(bindings[variable].els, function(e) {
+          e.removeAttribute(bindingMark);
+        })
+        // 6 实现双向数据绑定核心方法 defineProperty
+        Object.defineProperty(data, variable, {
+          set: function(newVal) {
+            [].forEach.call(bindings[variable].els, function(e) {
+              bindings[variable].value = e.textContent = newVal;
+            })
+          },
+          get: function() {
+            return bindings[variable].value;
+          }
+        })
+      }
+    }
+
+    var app = new Element('test', {
+      msg: 'Hello',
+      what: 'what',
+      hey: 'hey'
+    })
+  </script>
+</body>
+
+</html>
