@@ -71,7 +71,7 @@
   /**
    * Get the raw type string of a value e.g. [object Object]
    */
-  //获取toString 简写
+  // 缓存toString
   var _toString = Object.prototype.toString;
 
   function toRawType (value) {
@@ -286,7 +286,7 @@
   /* istanbul ignore next */
   //绑定事件 并且改变上下文指向
   function polyfillBind (fn, ctx) {
-    // todo 这个方法的写法，标记一下，稍后再看
+    // TODO 这个方法的写法，标记一下，稍后再看
     function boundFn (a) {
       var l = arguments.length;
       return l
@@ -929,8 +929,8 @@
     };
     /***********************************************************************************************
      *函数名 ：generateComponentTrace
-     *函数功能描述 ： 生成组建跟踪 vm=vm.$parent递归收集到msg出处。
-     *函数参数 ： vm 组建
+     *函数功能描述 ： 生成组件跟踪 vm=vm.$parent递归收集到msg出处。
+     *函数参数 ： vm 组件
      *函数返回值 ：
      *作者 ：
      *函数创建日期 ：
@@ -1050,7 +1050,7 @@
 
   //
   function popTarget () {
-    // 出盏一个pushTarget
+    // 弹出一个pushTarget
     Dep.target = targetStack.pop();
   }
 
@@ -1354,7 +1354,6 @@
    * getter / setter。此方法只应在调用时调用
    *值类型是Object。
    */
-  // todo 看到这来了
   Observer.prototype.walk = function walk (obj) {
     var keys = Object.keys(obj);
     for (var i = 0; i < keys.length; i++) {
@@ -1555,13 +1554,13 @@
     if (Array.isArray(target) && isValidArrayIndex(key)) {
       //设置数组的长度
       target.length = Math.max(target.length, key);
-      //像数组尾部添加一个新数据，相当于push
+      //push新数据
       target.splice(key, 1, val);
       return val
     }
-    //判断key是否在target 上，并且不是在Object.prototype 原型上，而不是通过父层原型链查找的
+    //判断key是否在target 上，并且不是在原型链查找的
     if (key in target && !(key in Object.prototype)) {
-      target[key] = val;  //赋值
+      target[key] = val;
       return val
     }
     var ob = (target).__ob__;  //声明一个对象ob 值为该target对象中的原型上面的所有方法和属性 ，表明该数据加入过观察者中
@@ -1597,11 +1596,11 @@
     if ("development" !== 'production' &&
       (isUndef(target) || isPrimitive(target))
     ) {
-      //无法删除未定义的、空的或原始值的无功属性：
+      //无法删除未定义的、空的或原始值的属性：
       warn(("Cannot delete reactive property on undefined, null, or primitive value: " + ((target))));
     }
 
-    //如果是数据则用splice方法删除
+    //如果是数组则用splice方法删除
     if (Array.isArray(target) && isValidArrayIndex(key)) {
       target.splice(key, 1);
       return
@@ -1858,8 +1857,8 @@
     childVal,  //子节点值
     vm,   //vm  vue实例化的对象
     key) {  // key值
-    // work around Firefox's Object.prototype.watch... 在Firefox的对象周围工作。原型
-    //// Firefox has a "watch" function on Object.prototype...
+    // work around Firefox's Object.prototype.watch... 对Firefox起作用
+    // Firefox has a "watch" function on Object.prototype... Firefox有watch
     //var nativeWatch = ({}).watch;
     if (parentVal === nativeWatch) {
       parentVal = undefined;
@@ -2474,9 +2473,9 @@
 
   /*
 
-     向外暴露了一个 handleError 方法，在需要捕获异常的地方调用。
+     向外暴露了一个 handleError 方法，在需要捕获异常的地方调用。
      handleError 方法中首先获取到报错的组件，之后递归查找当前组件的父组件，
-     依次调用 errorCaptured 方法。在遍历调用完所有 errorCaptured 方法、或 errorCaptured 方法有报错时，
+     依次调用 errorCaptured 方法。在遍历调用完所有 errorCaptured 方法、或 errorCaptured 方法有报错时，
 
      会调用 globalHandleError 方法。
 
@@ -2937,7 +2936,7 @@
 
     //slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
     name = once$$1 ? name.slice(1) : name;
-    //判断第一个位是否是 ！
+    //判断第一个字符是否是 ！
     var capture = name.charAt(0) === '!';
     //slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
     name = capture ? name.slice(1) : name;
@@ -2953,7 +2952,7 @@
   //createFnInvoker，如果事件只是个函数就为为事件添加多一个静态类， invoker.fns = fns; 把真正的事件放在fns。而 invoker 则是转义fns然后再运行fns
   function createFnInvoker (fns) {
     function invoker () {
-      //获取传进来的参数，是一个数组
+      //获取传进来的参数，是一个伪数组
       var arguments$1 = arguments;
 
       //静态方法传进来的函数 赋值给fns
@@ -2989,7 +2988,6 @@
     vm//vue 实例化对象
   ) {
     var name, def, cur, old, event;
-
     for (name in on) {  // 遍历on
       def = cur = on[name];  //on 新的事件值
       old = oldOn[name];  //oldOn 对象中的 与 name 匹配 并且赋值 old 估计这个是旧的值
@@ -3007,7 +3005,7 @@
 
         if (isUndef(cur.fns)) { //如果函数不存在 则绑定函数
           //函数 获取钩子函数
-          // 创建函数调用器并重新复制给cur和on[name]
+          // 创建函数调用器并重新赋值给cur和on[name]
           cur = on[name] = createFnInvoker(cur); //这个时候cur.fns就存在了
         }
 
@@ -5039,7 +5037,7 @@
           );
         }
 
-        //判断key是否是改对象实例化的
+        //判断key是否是该对象实例化的
         //如果属性中定义了key，则在methods中不能定义同样的key
         if (props && hasOwn(props, key)) {
           warn(
@@ -5055,7 +5053,7 @@
           );
         }
       }
-      //把事件放在最外层对象中，如果是函数为空则给一个空函数，如果是有函数则执行改函数
+      //把事件放在最外层对象中，如果是函数为空则给一个空函数，如果是有函数则执行该函数
       vm[key] = methods[key] == null ? noop : bind(methods[key], vm);
     }
   }
@@ -5127,7 +5125,7 @@
 
     {
       dataDef.set = function (newData) {
-        //避免替换实例根$data。 使用嵌套数据属性代替
+        //避免替换根实例$data。 使用嵌套数据属性代替
         warn(
           'Avoid replacing instance root $data. ' +
           'Use nested data properties instead.',
@@ -5135,7 +5133,7 @@
         );
       };
       propsDef.set = function () {
-        //props 只是可度的数据不可以设置更改
+        //props 只读的数据不可以设置更改
         warn("$props is readonly.", this);
       };
     }
@@ -5196,6 +5194,7 @@
     }
   }
 
+  // TODO 看下这个方法 initInjections
   //初始化 inject
   function initInjections (vm) {
     //provide 和 inject 主要为高阶插件/组件库提供用例。并不推荐直接用于应用程序代码中。
@@ -5617,13 +5616,14 @@
     parent, //vm vue实例化，如果parent也组件 也可能是VueComponent 构造函数 实例化的对象
     Ctor  //VueComponent 构造函数
   ) {
-    // console.log([
-    //     data, // vonde 虚拟dom的属性数据
-    //     props,  //props 属性
-    //     children, //子节点
-    //     parent, //vm
-    //     Ctor  //VueComponent 构造函数
-    // ])
+    // TODO 这个方法不懂什么意思，要查一下
+    console.log([
+      data, // vonde 虚拟dom的属性数据
+      props,  //props 属性
+      children, //子节点
+      parent, //vm
+      Ctor  //VueComponent 构造函数
+    ], 'FunctionalRenderContext')
 
     var options = Ctor.options;
     // ensure the createElement function in functional components
@@ -6785,19 +6785,30 @@
     ) {
       warn('Vue is a constructor and should be called with the `new` keyword');
     }
-    this._init(options);
+    // this._init(options);
   }
 
-  initMixin(Vue);    //初始化vue
-  stateMixin(Vue);  //数据绑定，$watch方法
-  eventsMixin(Vue);  // 初始化事件绑定方法
-  lifecycleMixin(Vue); // 初始化vue 更新 销毁 函数
-  renderMixin(Vue); //初始化vue 需要渲染的函数
+  // 初始化的时候myVue.prototype只有constuctor，那么Vue.prototype里其他的$inspect,__patch__,$isServer,$ssrContext是从哪里来的
+  // function myVue (options) { }
+  // console.log(myVue.prototype, 'myVue')
+  // TODO ----------------------note here-----------------------------
+  console.log(Vue.prototype, 'start');
+  // initMixin(Vue);    //初始化vue
+  // console.log(Vue.prototype, 'initMixin');
+  // stateMixin(Vue);  //数据绑定，$watch方法
+  // console.log(Vue.prototype, 'stateMixin');
+  // eventsMixin(Vue);  // 初始化事件绑定方法
+  // console.log(Vue.prototype, 'eventsMixin');
+  // lifecycleMixin(Vue); // 初始化vue 更新 销毁 函数
+  // console.log(Vue.prototype, 'lifecycleMixin');
+  // renderMixin(Vue); //初始化vue 需要渲染的函数
+  // console.log(Vue.prototype, 'renderMixin');
 
 
   /*  */
   // 初始化vue 安装插件函数
   function initUse (Vue) {
+    // TODO 看一下use方法
     //安装 Vue.js 插件。
     Vue.use = function (plugin) {
       var installedPlugins = (this._installedPlugins || (this._installedPlugins = []));
@@ -6833,6 +6844,7 @@
   /*  */
   //初始化 vue extend 函数
   function initExtend (Vue) {
+    // TODO 看一下extend方法
     /**
      * Each instance constructor, including Vue, has a unique
      * cid. This enables us to create wrapped "child
@@ -6955,14 +6967,15 @@
      *  为vue 添加 静态方法component，directive，，filter
      * */
   function initAssetRegisters (Vue) {
+    // TODO 看一下vue静态方法的扩展
     /**
      * Create asset registration methods.
      *
      *
      *  // var ASSET_TYPES = [
-     //     'component',  //组建指令
-     //     'directive', //定义指令 指令
-     //     'filter'  //过滤器指令
+     //     'component',  //组件
+     //     'directive', //自定义指令
+     //     'filter'  //过滤器指
      // ];
      *为vue 添加 静态方法component，directive，filter
      *
@@ -6975,8 +6988,8 @@
       ) {
 
 
-        if (!definition) {  //如果definition不存在
-          return this.options[type + 's'][id] //返回
+        if (!definition) {
+          return this.options[type + 's'][id] //没传参直接返回
         } else {
           /* istanbul ignore if */
           if ("development" !== 'production' && type === 'component') {
@@ -7108,6 +7121,7 @@
 
     // 渲染 keepAlive 组件
     render: function render () {
+      // TODO 这里看一下keep-alive方法
       var slot = this.$slots.default; //获取插槽
       var vnode = getFirstComponentChild(slot); // 获取插槽子组件
       var componentOptions = vnode && vnode.componentOptions; //获取组件参数
@@ -7207,11 +7221,11 @@
     Vue.nextTick = nextTick; // 暴露接口静态方法 nextTick 方法
 
     Vue.options = Object.create(null); //创建一个空的参数
-    // var ASSET_TYPES = [
-    //     'component',  //组建指令
-    //     'directive', //定义指令 指令
-    //     'filter'  //过滤器指令
-    // ];
+    var ASSET_TYPES = [
+      'component',  //组件
+      'directive', //自定义指令
+      'filter'  //过滤器
+    ];
     //
     //添加components ，directives， filters 指令组件 控对象
     ASSET_TYPES.forEach(function (type) {
@@ -7220,15 +7234,15 @@
 
     // this is used to identify the "base" constructor to extend all plain-object
     // components with in Weex's multi-instance scenarios.
-    //用来标识扩展所有普通对象的“基”构造函数
-    // Weex的多实例场景中的组件。
+    // 它用于标识一个基础类来扩展Weex的多实例场景中的字面量组件。
     Vue.options._base = Vue;
 
     extend(Vue.options.components, builtInComponents); //合并  KeepAlive参数中的组件对象
-    initUse(Vue); //  初始化vue 安装插件函数
+    initUse(Vue); //  初始化vue use方法
     initMixin$1(Vue);  //初始化vue mixin 函数
     initExtend(Vue); //初始化 vue extend 函数
     initAssetRegisters(Vue); //为vue 添加 静态方法component，directive，，filter
+    console.dir(Vue, 'initGlobalAPI');
   }
 
   //初始化全局api 并且暴露 一些静态方法
@@ -7424,10 +7438,9 @@
     }
     return res
   }
-
-  /*
-     *
-     * */
+  /**
+   * 
+   */
   var namespaceMap = {
     svg: 'http://www.w3.org/2000/svg', //svg标签命名xmlns属性
     math: 'http://www.w3.org/1998/Math/MathML' //math 中的xmlns属性声明 XHTML 文件
@@ -9516,14 +9529,6 @@
 
     el.plain = false;
   }
-
-
-
-
-
-
-
-
 
   //  获取 :属性 或者v-bind:属性，或者获取属性 移除传进来的属性name，并且返回获取到 属性的值
   function getBindingAttr (el, //虚拟dom  vonde
@@ -11905,16 +11910,16 @@
   // public mount method 安装方法 实例方法挂载 vm
   // 手动地挂载一个未挂载的实例。
 
-  Vue.prototype.$mount = function (el,  //真实dom 或者是string
-    hydrating  //新的虚拟dom vonde
-  ) {
-    el = el && inBrowser ? query(el) : undefined;
-    return mountComponent(
-      this,
-      el,
-      hydrating
-    )
-  };
+  // Vue.prototype.$mount = function (el,  //真实dom 或者是string
+  //   hydrating  //新的虚拟dom vonde
+  // ) {
+  //   el = el && inBrowser ? query(el) : undefined;
+  //   return mountComponent(
+  //     this,
+  //     el,
+  //     hydrating
+  //   )
+  // };
 
   // devtools global hook
   /* istanbul ignore next */
@@ -11951,7 +11956,7 @@
 
   /*  */
   //
-  var defaultTagRE = /\{\{((?:.|\n)+?)\}\}/g; //匹配viwe 视图中的{{指令}}
+  var defaultTagRE = /\{\{((?:.|\n)+?)\}\}/g; //匹配视图中的{{指令}}
   var regexEscapeRE = /[-.*+?^${}()|[\]\/\\]/g; //匹配特殊符号  - 或者. 或者* 或者+ 或者? 或者^ 或者$ 或者{ 或者} 或者( 或者) 或者| 或者[ 或者] 或者/ 或者\
 
 
@@ -12353,7 +12358,7 @@
 
         if (textEnd < 0) { //都没有匹配到 < 符号 则表示纯文本
           text = html; //出来text
-          html = ''; //把html至空 跳槽 while循环
+          html = ''; //把html至空 跳出 while循环
         }
 
         if (options.chars && text) {
@@ -12404,7 +12409,7 @@
     //调用options.end函数，删除当前节点的子节点中的最后一个如果是空格或者空的文本节点则删除，
     //为stack出栈一个当前标签，为currentParent变量获取到当前节点的父节点
     parseEndTag();
-    //while 跳出循环就是靠该函数，每次匹配到之后就截取掉字符串，知道最后一个标签被截取完没有匹配到则跳出循环
+    //while 跳出循环就是靠该函数，每次匹配到之后就截取掉字符串，直到最后一个标签被截取完没有匹配到则跳出循环
     function advance (n) {
       index += n; //让索引叠加
       html = html.substring(n); //截取当前索引 和 后面的字符串。
@@ -13648,8 +13653,6 @@
     }
   }
 
-  /*  */
-
   /**
    * Expand input[v-model] with dyanmic type bindings into v-if-else chains
    * 使用dyanmic类型绑定将输入[v-model]展开到v-if-else链中
@@ -14825,7 +14828,6 @@
     return ("_c(" + componentName + "," + (genData$2(el, state)) + (children ? ("," + children) : '') + ")")
   }
 
-
   //把props 变成 一个 由 字符串对象数组
   // name1:value1,name2:value2,name3:value3
   function genProps (props) {
@@ -14841,7 +14843,6 @@
     return res.slice(0, -1)
   }
 
-
   /*
      \u2028	 	行分隔符	行结束符
      \u2029	 	段落分隔符	行结束符
@@ -14854,8 +14855,6 @@
       .replace(/\u2028/g, '\\u2028')
       .replace(/\u2029/g, '\\u2029')
   }
-
-  /*  */
 
   // these keywords should not appear inside expressions, but operators like 这些关键字不应该出现在表达式中，但是操作符喜欢
   // typeof, instanceof and in are allowed 允许使用类型of、instanceof和in
@@ -15339,16 +15338,10 @@
       }
     });
 
-  /*
-     *
-     *
-     * */
   //创建编译获取编译对象函数
   var ref$1 = createCompiler(baseOptions);
   //执行编译对象函数 compileToFunctions 是一个函数
   var compileToFunctions = ref$1.compileToFunctions;
-
-  /*  */
 
   // check whether current browser encodes a char inside attribute values
   var div;
@@ -15370,11 +15363,11 @@
   var shouldDecodeNewlinesForHref = inBrowser ? getShouldDecode(true) : false;
 
   /*
-     *
-     *   * aFn 函数会多次调用 里面就能体现了
-     *  用对象去缓存记录函数
-     *  idToTemplate 是一个函数，根据key值来 取值，如果第二次的key还是一样则从对象中取值，而不是重新在执行一次函数
-     * */
+  *
+  *   * aFn 函数会多次调用 里面就能体现了
+  *  用对象去缓存记录函数
+  *  idToTemplate 是一个函数，根据key值来 取值，如果第二次的key还是一样则从对象中取值，而不是重新在执行一次函数
+  */
 
   var idToTemplate = cached(function (id) {
     var el = query(id);
@@ -15388,119 +15381,119 @@
   // 在项目中可用于延时挂载（例如在挂载之前要进行一些其他操作、判断等），之后要手动挂载上。
   // new Vue时，el和$mount并没有本质上的不同。
 
-  Vue.prototype.$mount = function (el, hydrating) { //重写Vue.prototype.$mount
+  // Vue.prototype.$mount = function (el, hydrating) { //重写Vue.prototype.$mount
 
-    el = el && query(el); //获取dom
-    /* istanbul ignore if */
-    //如果el 是body 或者文档 则警告
-    if (el === document.body || el === document.documentElement) {
-      "development" !== 'production' && warn(
-        "Do not mount Vue to <html> or <body> - mount to normal elements instead."
-      );
-      return this
-    }
-    //获取参数
-    var options = this.$options;
-    // resolve template/el and convert to render function
-    //解析模板/el并转换为render函数
-    if (!options.render) {
-      //获取模板字符串
-      var template = options.template;
+  //   el = el && query(el); //获取dom
+  //   /* istanbul ignore if */
+  //   //如果el 是body 或者文档 则警告
+  //   if (el === document.body || el === document.documentElement) {
+  //     "development" !== 'production' && warn(
+  //       "Do not mount Vue to <html> or <body> - mount to normal elements instead."
+  //     );
+  //     return this
+  //   }
+  //   //获取参数
+  //   var options = this.$options;
+  //   // resolve template/el and convert to render function
+  //   //解析模板/el并转换为render函数
+  //   if (!options.render) {
+  //     //获取模板字符串
+  //     var template = options.template;
 
-      if (template) { //如果有模板
+  //     if (template) { //如果有模板
 
-        if (typeof template === 'string') { //模板是字符串
+  //       if (typeof template === 'string') { //模板是字符串
 
-          //模板第一个字符串为# 则判断该字符串为 dom的id
-          if (template.charAt(0) === '#') {
+  //         //模板第一个字符串为# 则判断该字符串为 dom的id
+  //         if (template.charAt(0) === '#') {
 
-            template = idToTemplate(template); //获取字符串模板的innerHtml
+  //           template = idToTemplate(template); //获取字符串模板的innerHtml
 
-            /* istanbul ignore if */
-            if ("development" !== 'production' && !template) {
-              warn(
-                ("Template element not found or is empty: " + (options.template)),
-                this
-              );
-            }
-          }
-        } else if (template.nodeType) { //如果template 是don节点 则获取他的html
-          template = template.innerHTML;
-        } else {
-          //如果什么都是不是则发出警告
-          {
-            warn('invalid template option:' + template, this);
-          }
-          return this
+  //           /* istanbul ignore if */
+  //           if ("development" !== 'production' && !template) {
+  //             warn(
+  //               ("Template element not found or is empty: " + (options.template)),
+  //               this
+  //             );
+  //           }
+  //         }
+  //       } else if (template.nodeType) { //如果template 是don节点 则获取他的html
+  //         template = template.innerHTML;
+  //       } else {
+  //         //如果什么都是不是则发出警告
+  //         {
+  //           warn('invalid template option:' + template, this);
+  //         }
+  //         return this
 
-        }
-      } else if (el) {
+  //       }
+  //     } else if (el) {
 
-        //如果模板没有，dom节点存在则获取dom节点中的html 给模板
-        template = getOuterHTML(el);
+  //       //如果模板没有，dom节点存在则获取dom节点中的html 给模板
+  //       template = getOuterHTML(el);
 
-      }
-      if (template) {
-        /* istanbul ignore if */
-        //监听性能监测
-        if ("development" !== 'production' && config.performance && mark) {
-          mark('compile');
-        }
-        //创建模板
+  //     }
+  //     if (template) {
+  //       /* istanbul ignore if */
+  //       //监听性能监测
+  //       if ("development" !== 'production' && config.performance && mark) {
+  //         mark('compile');
+  //       }
+  //       //创建模板
 
-        var ref = compileToFunctions(
-          template, //模板字符串
-          {
-            shouldDecodeNewlines: shouldDecodeNewlines, //flase //IE在属性值中编码换行，而其他浏览器则不会
-            shouldDecodeNewlinesForHref: shouldDecodeNewlinesForHref, //true chrome在a[href]中编码内容
-            delimiters: options.delimiters, //改变纯文本插入分隔符。修改指令的书写风格，比如默认是{{mgs}}  delimiters: ['${', '}']之后变成这样 ${mgs}
-            comments: options.comments //当设为 true 时，将会保留且渲染模板中的 HTML 注释。默认行为是舍弃它们。
-          },
-          this
-        );
-        // res.render = createFunction(compiled.render, fnGenErrors);
-        //获取编译函数 是将字符串转化成真正js的函数
-        // res.render = createFunction(compiled.render, fnGenErrors);
-        // //字符串转化js 创建一个集合函数
-        // res.staticRenderFns = compiled.staticRenderFns.map(function (code) {
-        //     return createFunction(code, fnGenErrors)
-        // });
-
-
-
-        // ast: ast, //ast 模板
-        //render: code.render, //code 虚拟dom需要渲染的参数函数
-        //staticRenderFns: code.staticRenderFns  //空数组
-
-        //这样赋值可以有效地 防止 引用按地址引用，造成数据修改而其他对象也修改问题，
-        var render = ref.render;
-        var staticRenderFns = ref.staticRenderFns;
-
-        /*
-               render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
-               (function anonymous( ) {
-                    with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0)])}
-                 })
-               */
-        options.render = render;
-        options.staticRenderFns = staticRenderFns;
-
-        /* istanbul ignore if */
-        if ("development" !== 'production' && config.performance && mark) {
-          mark('compile end');
-          measure(("vue " + (this._name) + " compile"), 'compile', 'compile end');
-        }
-      }
-    }
+  //       var ref = compileToFunctions(
+  //         template, //模板字符串
+  //         {
+  //           shouldDecodeNewlines: shouldDecodeNewlines, //flase //IE在属性值中编码换行，而其他浏览器则不会
+  //           shouldDecodeNewlinesForHref: shouldDecodeNewlinesForHref, //true chrome在a[href]中编码内容
+  //           delimiters: options.delimiters, //改变纯文本插入分隔符。修改指令的书写风格，比如默认是{{mgs}}  delimiters: ['${', '}']之后变成这样 ${mgs}
+  //           comments: options.comments //当设为 true 时，将会保留且渲染模板中的 HTML 注释。默认行为是舍弃它们。
+  //         },
+  //         this
+  //       );
+  //       // res.render = createFunction(compiled.render, fnGenErrors);
+  //       //获取编译函数 是将字符串转化成真正js的函数
+  //       // res.render = createFunction(compiled.render, fnGenErrors);
+  //       // //字符串转化js 创建一个集合函数
+  //       // res.staticRenderFns = compiled.staticRenderFns.map(function (code) {
+  //       //     return createFunction(code, fnGenErrors)
+  //       // });
 
 
-    //执行$mount方法 一共执行了两次 第一次是在9000多行那一个  用$mount的方法把扩展挂载到dom上
-    return mount.call(
-      this,
-      el, //真实的dom
-      hydrating //undefined
-    )
-  };
+
+  //       // ast: ast, //ast 模板
+  //       //render: code.render, //code 虚拟dom需要渲染的参数函数
+  //       //staticRenderFns: code.staticRenderFns  //空数组
+
+  //       //这样赋值可以有效地 防止 引用按地址引用，造成数据修改而其他对象也修改问题，
+  //       var render = ref.render;
+  //       var staticRenderFns = ref.staticRenderFns;
+
+  //       /*
+  //              render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
+  //              (function anonymous( ) {
+  //                   with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0)])}
+  //                })
+  //              */
+  //       options.render = render;
+  //       options.staticRenderFns = staticRenderFns;
+
+  //       /* istanbul ignore if */
+  //       if ("development" !== 'production' && config.performance && mark) {
+  //         mark('compile end');
+  //         measure(("vue " + (this._name) + " compile"), 'compile', 'compile end');
+  //       }
+  //     }
+  //   }
+
+
+  //   //执行$mount方法 一共执行了两次 第一次是在9000多行那一个  用$mount的方法把扩展挂载到dom上
+  //   return mount.call(
+  //     this,
+  //     el, //真实的dom
+  //     hydrating //undefined
+  //   )
+  // };
 
   /**
    * Get outerHTML of elements, taking care

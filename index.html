@@ -1,23 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>init demo</title>
-    <script src="vue.js"></script>
+  <meta charset="UTF-8">
+  <title>init demo</title>
+  <script src="vue.js"></script>
 </head>
+
 <body>
-<div id="app">
-    <!--this is comment-->  {{ message }}
-</div>
-<script>
+  <div id="app">
+    <!--this is comment-->
+    <p @click.passive="handleClick">
+      <h1>{{ message }}</h1>
+    </p>
+    <div>
+      <label for="inpt">姓名：<input @input="handleInput" type="text"
+          id="inpt" /></label>
+    </div>
+  </div>
+  <script>
     new Vue({
-        el: '#app',
-        data: function() {
-             return  {
-                 message: 'Hello World!'
-             }
+      el: '#app',
+      data: function () {
+        return {
+          message: 'Hello World!'
+        }
+      },
+      directives: {},
+      filters: {},
+      extends: {},
+      mixins: {},
+      computed: {},
+      watch: {},
+      beforeCreate() {
+        // 生命周期钩子：组件实例刚被创建，组件属性计算之前，如 data 属性等
+        console.log('beforeCreate');
+      },
+      created() {
+        // 生命周期钩子：组件实例创建完成，属性已绑定，但 DOM 还未生成，el 属性还不存在
+        // 初始化渲染页面
+        console.log('created');
+      },
+      beforeMount() {
+        // 生命周期钩子：模板编译/挂载之前
+        console.log('beforeMount');
+      },
+      mounted() {
+        // 生命周期钩子：模板编译、挂载之后（此时不保证已在 document 中）
+        console.log('mounted');
+      },
+      beforeUpate() {
+        // 生命周期钩子：组件更新之前
+        console.log('beforeUpate');
+      },
+      updated() {
+        // 生命周期钩子：组件更新之后
+        console.log('updated');
+      },
+      activated() {
+        // 生命周期钩子：keep-alive 组件激活时调用
+        console.log('activated');
+      },
+      deactivated() {
+        // 生命周期钩子：keep-alive 组件停用时调用
+        console.log('deactivated');
+      },
+      beforeDestroy() {
+        // 生命周期钩子：实例销毁前调用
+        console.log('beforeDestroy');
+
+      },
+      destroyed() {
+        // 生命周期钩子：实例销毁后调用
+        console.log('destroyed');
+      },
+      errorCaptured(err, vm, info) {
+        // 生命周期钩子：当捕获一个来自子孙组件的错误时被调用。此钩子会收到三个参数：错误对象、发生错误的组件实例以及一个包含错误来源信息的字符串。
+        console.log(err, vm, info);
+      },
+      methods: {
+        handleClick(e) {
+          console.log(e, 'handleClick');
         },
+        handleInput(e) {
+          console.log(e, 'handleInput');
+
+        }
+      },
     })
-</script>
+  </script>
 </body>
+
 </html>
