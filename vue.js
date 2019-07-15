@@ -4663,8 +4663,8 @@
      *
      Object.defineProperty(person,'name',{
      configurable:false,//能否使用delete、能否需改属性特性、或能否修改访问器属性、，false为不可重新定义，默认值为true 是否可以编辑
-     enumerable:false,//对象属性是否可通过for-in循环，flase为不可循环，默认值为true 是否可以枚举遍历
-     writable:false,//对象属性是否可修改,flase为不可修改，默认值为true
+     enumerable:false,//对象属性是否可通过for-in循环，false为不可循环，默认值为true 是否可以枚举遍历
+     writable:false,//对象属性是否可修改,false为不可修改，默认值为true
      value:'' //对象属性的默认值，默认值为undefined
      });
      * */
@@ -9333,9 +9333,6 @@
     el.attrsMap[name] = value;
     el.attrsList.push({ name: name, value: value });
   }
-
-
-
 
   //为虚拟dom 添加一个 指令directives属性 对象
   function addDirective (
@@ -15406,7 +15403,7 @@
     }
 
 
-    //执行$mount方法 一共执行了两次 第一次是在9000多行那一个  用$mount的方法把扩展挂载到dom上
+    //执行$mount方法 把扩展挂载到dom上
     return mount.call(
       this,
       el, //真实的dom

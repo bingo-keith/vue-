@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>4_demo_state</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <p>{{ toUpperCase }}</p>
+    <p>{{ userInfo }}</p>
+    <button @click="handleClick">修改</button>
+  </div>
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          msg: 'Hello World'
+        }
+      },
+      computed: {
+        toUpperCase() {
+          return this.msg.toUpperCase();
+        },
+        userInfo: {
+          // 计算属性默认只有 getter ，不过在需要时你也可以提供一个 setter
+          get() {
+            return this.msg + ' userInfo 触发了getter';
+          },
+          set(newVal) {
+            this.msg = newVal + ' userInfo 触发了setter'
+          }
+        }
+      },
+      methods: {
+        handleClick() {
+          this.userInfo += ' handleClick'
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
