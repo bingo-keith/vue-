@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>4_demo_state</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>策略模式在于利用传入不同的参数而调用不同的方法并给方法传递参数</div>
+    <div>该设计模式能减少大量的if语句，复用性好</div>
+    <div>应用场景：对于一些业务场景有多个分支判断，并且每个分支执行的是不同的逻辑（方法）</div>
+  </div>
+  <script>
+    var Pattern = function() {
+        var status = {
+            return30: function(price) {
+                console.log('执行了return30方法，' + price + '折扣');
+            },
+            return50: function(price) {
+                console.log('执行了return50方法，' + price + '折扣');
+            }
+        }
+        return function(item, price) {
+            return status[item] && status[item](price);
+        }
+    }()
+    Pattern('return30', 300)
+  </script>
+</body>
+
+</html>

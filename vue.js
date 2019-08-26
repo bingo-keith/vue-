@@ -612,8 +612,7 @@
 
     /**
      * Exposed for legacy reasons
-     * 因遗产原因暴露
-     * 声明周期对象
+     * 暴露生命周期对象
      */
     _lifecycleHooks: LIFECYCLE_HOOKS
   })
@@ -2058,7 +2057,7 @@
   /**
    * Merge two option objects into a new one.
    * Core utility used in both instantiation and inheritance.
-   * 将两个对象合成一个对象 将父值对象和子值对象合并在一起，并且优先取值子值，如果没有则取子值
+   * 将两个对象合成一个对象 将父值对象和子值对象合并在一起，并且优先取值子值，如果没有则取父值
    *
    * 用于实例化和继承的核心实用程序。
    */
@@ -2114,7 +2113,7 @@
     // strats类里面的方法都是  合并数据 如果没有子节点childVal，
     // 就返回父节点parentVal，如果有子节点childVal就返回子节点childVal。
     function mergeField (key) {
-      //defaultStrat 获取子值还是父组的值
+      // 策略模式
       var strat = strats[key] ||  //
         defaultStrat;  //* 如果没有子节点就返回父节点，如果有子节点就返回子节点
       //获取子值还是父组的值
@@ -4191,7 +4190,7 @@
     pushTarget();
     //在vm 中添加声明周期函数
     var handlers = vm.$options[hook];
-    if (handlers) {  //数组
+    if (handlers) {  //是否存在该生命周期
       for (var i = 0, j = handlers.length; i < j; i++) {
         try {
           //执行生命周期函数
@@ -4201,7 +4200,8 @@
         }
       }
     }
-    // TODO 确认场景
+    // TODO 是否存在生命周期钩子的事件侦听器
+    // @hook:created="handleChildCreated
     if (vm._hasHookEvent) {
       vm.$emit('hook:' + hook);
     }
@@ -6129,7 +6129,7 @@
   var ALWAYS_NORMALIZE = 2;
 
   // wrapper function for providing a more flexible interface 闭包提供更灵活的接口
-  // without getting yelled at by flow 而不是被心流狂吼
+  // without getting yelled at by flow 
 
   //创建dom节点
   function createElement (
@@ -6555,7 +6555,8 @@
         //初始化内部组件
         initInternalComponent(vm, options);
       } else {
-        //合并参数 将两个对象合成一个对象 将父值对象和子值对象合并在一起，并且优先取值子值，如果没有则取子值
+        // 合并参数 将两个对象合成一个对象 将父值对象和子值对象合并在一起，并且优先取值子值，如果没有则取子值
+        // 并且生命周期始终为一个数组:1762
         vm.$options = mergeOptions(
           resolveConstructorOptions(vm.constructor), //  //解析constructor上的options属性的
           options || {},
@@ -7191,8 +7192,7 @@
 
   // these are reserved for web because they are directly compiled away
   // during template compilation
-  //这些是为web保留的，因为它们是直接编译掉的
-  //在模板编译期间
+  //这些是为web保留的，因为在模板编译期间它们是直接编译掉的
   //  isReservedAttr是一个函数判断 传入字符串style或者class的是否返回真
   var isReservedAttr = makeMap('style,class');
 
@@ -12086,7 +12086,7 @@
      * http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
      */
 
-  // Regular Expressions for parsing tags and attributes 解析标记和属性的正则表达式
+  // Regular Expressions for parsing tags and attributes 解析html标签和属性的正则表达式
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
   // could use https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-QName
   // but for Vue templates we can enforce a simple charset
