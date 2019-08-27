@@ -32,6 +32,34 @@
     }()
     Pattern('return30', 300)
   </script>
+
+  <script type="text/javascript">
+    // 策略模式
+    const Strategy = function(item) {
+        const strategies = {
+            'T': function(strat) {
+                console.log("这里执行的是小于10元的逻辑：" + strat);
+                return "这里执行的是小于10元的逻辑：" + strat;
+            },
+            'S': function(strat) {
+                console.log("这里执行的是大于10元小于30元的逻辑：" + strat);
+                return "这里执行的是大于10元小于30元的逻辑：" + strat;
+            },
+            'F': function(strat) {
+                console.log("这里执行的是大于30元小于50元的逻辑：" + strat);
+                return "这里执行的是大于30元小于50元的逻辑：" + strat;
+            },
+            'default': function(strat) {
+                console.log("这里执行的是大于50元的逻辑：" + strat);
+                return "这里执行的是大于50元的逻辑：" + strat;
+            }
+        }
+        return function(item, strat) {
+            return strategies[item] ? strategies[item](strat) : strategies['default'](strat);
+        }
+    }()
+    document.write(Strategy('F', 200));
+</script>
 </body>
 
 </html>

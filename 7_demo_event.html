@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>4_demo_state</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <p>{{ msg }}</p>
+    <button @click="handleClick">修改</button>
+  </div>
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          msg: 'Hello World'
+        }
+      },
+      methods: {
+        handleClick() {
+          this.msg += ' handleClick!'
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

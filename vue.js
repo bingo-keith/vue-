@@ -987,52 +987,47 @@
   var uid = 0;
 
   /**
-   * A dep is an observable that can have multiple dep是可观察到的，可以有多个
-   * directives subscribing to it.订阅它的指令。
-   *
+   * A dep is an observable that can have multiple  
+   * directives subscribing to it.
+   * dep是一个可以有多个订阅它指令的观察者
    */
-  //主题对象Dep构造函数  主要用于添加发布事件后，用户更新数据的 响应式原理之一函数
+  //Dep构造函数  发布订阅模式/观察者模式
   var Dep = function Dep () {
-    //uid  初始化为0
     this.id = uid++;
-    /* 用来存放Watcher对象的数组 */
     this.subs = [];
   };
-
+  // 发布订阅
   Dep.prototype.addSub = function addSub (sub) {
-    /* 在subs中添加一个Watcher对象 */
     this.subs.push(sub);
   };
-
+  // 取消订阅
   Dep.prototype.removeSub = function removeSub (sub) {
-    /*删除 在subs中添加一个Watcher对象 */
     remove(this.subs, sub);
   };
-  //this$1.deps[i].depend();
-  //为Watcher 添加 为Watcher.newDeps.push(dep); 一个dep对象
+  // TODO 该方法深入了解一下
+  // 为Watcher 添加 为Watcher.newDeps.push(dep); 一个dep对象
   Dep.prototype.depend = function depend () {
-    //添加一个dep    target 是Watcher dep就是dep对象
+    // 添加一个dep,target是Watcher,dep就是dep对象
     if (Dep.target) {
-      //像指令添加依赖项
+      // 像指令添加依赖项
       Dep.target.addDep(this);
     }
   };
-  /* 通知所有Watcher对象更新视图 */
+  /* 通知所有的订阅者更新数据 */
   Dep.prototype.notify = function notify () {
     // stabilize the subscriber list first
-    var subs = this.subs.slice();
+    var subs = this.subs.slice(); // 转换成数组
     for (var i = 0, l = subs.length; i < l; i++) {
-      //更新数据
-      subs[i].update();
+      // 更新数据
+      subs[i].update(); // TODO 该方法查找一下
     }
   };
 
   // the current target watcher being evaluated.
   // this is globally unique because there could be only one
   // watcher being evaluated at any time.
-  //当前正在评估的目标监视程序。
-  //这在全球是独一无二的，因为只有一个
-  //观察者在任何时候都被评估。
+  // 当前正在评估的目标观察者。
+  // 它是唯一的因为那里在任何时候只能有一个被评估的观察者
   Dep.target = null;
   var targetStack = [];
 
@@ -1284,16 +1279,10 @@
    * object. Once attached, the observer converts the target
    * object's property keys into getter/setters that
    * collect dependencies and dispatch updates.
-   * *每个观察到的观察者类
-   *对象。一旦被连接，观察者就转换目标。
-   *对象的属性键为吸收器/设置器
-   *收集依赖关系并发送更新。
-   *
-   * 实例化 dep对象,获取dep对象  为 value添加__ob__ 属性
+   * *该类是每个被附加的观察者对象.一旦被附加，观察者就转换目标对象的属性keys到getters/setters，为了收集依赖和触发更新
    */
   var Observer = function Observer (value) {
-
-
+    // 实例化 dep对象,获取dep对象  为 value添加__ob__ 属性
     this.value = value;
     this.dep = new Dep();
     this.vmCount = 0;
@@ -1376,30 +1365,22 @@
    * Attempt to create an observer instance for a value,
    * returns the new observer if successfully observed,
    * or the existing observer if the value already has one.
-   *尝试为值创建一个观察者实例，
-   *如果成功观察，返回新的观察者；
-   *或现有的观察员，如果值已经有一个。
-   *
-   * 判断value 是否有__ob__    实例化 dep对象,获取dep对象  为 value添加__ob__ 属性  返回 new Observer 实例化的对象
+   *尝试为值创建一个观察者实例，返回新的观察者，或返回已存在的观察者。
    */
   function observe (value, asRootData) {
-
     if (!isObject(value) || value instanceof VNode) {
       //value 不是一个对象 或者 实例化 的VNode
-
       return
     }
+    // 判断value 是否有__ob__ 实例化 dep对象,获取dep对象  为 value添加__ob__ 属性  返回 new Observer 实例化的对象
     var ob;
-
     if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
-
-
       ob = value.__ob__;
     } else if (
-      shouldObserve &&  //shouldObserve 为真
-      !isServerRendering() &&  //并且不是在服务器node环境下
+      shouldObserve &&  // shouldObserve 为真
+      !isServerRendering() &&  // 并且不是SSR
       (Array.isArray(value) || isPlainObject(value)) && //是数组或者是对象
-      Object.isExtensible(value) && //Object.preventExtensions(O) 方法用于锁住对象属性，使其不能够拓展，也就是不能增加新的属性，但是属性的值仍然可以更改，也可以把属性删除，Object.isExtensible用于判断对象是否可以被拓展
+      Object.isExtensible(value) && // 是否是可扩展的（是否可以在它上面添加新的属性）
       !value._isVue //_isVue为假
     ) {
       //实例化 dep对象 为 value添加__ob__ 属性
@@ -2108,7 +2089,7 @@
       }
     }
 
-    //获取到key 去读取strats类的方法
+    // 获取到key 去读取strats类的方法
     // strats类 有方法 el，propsData，data，provide，watch，props，methods，inject，computed，components，directives，filters 。
     // strats类里面的方法都是  合并数据 如果没有子节点childVal，
     // 就返回父节点parentVal，如果有子节点childVal就返回子节点childVal。
@@ -2870,33 +2851,33 @@
   }
 
   /*
-     *
-     * // normalizeEvent函数主要用于将传入的带有特殊前缀的事件修饰符分解为具有特定值的事件对象
-     * cachedFn
-     *
-     function cached(fn) {
-     var cache = Object.create(null);
-     return (function cachedFn(str) {
-     var hit = cache[str];
-     return hit || (cache[str] = fn(str))
-     })
-     }
-     *   normalizeEvent 得到的是一个函数  如果传入的 name 中 在cache 对象中有值 则返回这个值
-     *   如果该对象没有值则 调用该函数 并且用返回值 记录 当前执行函数返回值记录起来
-     * */
-  //该函数是过滤 vue 事件中的修饰符
+  *
+  * normalizeEvent函数主要用于将传入的带有特殊前缀的事件修饰符分解为具有特定值的事件对象
+  * cachedFn
+  *
+  function cached(fn) {
+    var cache = Object.create(null);
+    return (function cachedFn(str) {
+      var hit = cache[str];
+      return hit || (cache[str] = fn(str))
+    })
+  }
+  * normalizeEvent 得到的是一个函数  如果传入的 name 中 在cache 对象中有值 则返回这个值
+  * 如果该对象没有值则 调用该函数 并且用返回值 记录 当前执行函数返回值记录起来
+  * */
+  // 该函数是过滤 vue 事件中的修饰符
   var normalizeEvent = cached(function (name) {
-    //判断第一个字符是否是'&
+    // 判断第一个字符是否是&
     var passive = name.charAt(0) === '&';
-    //slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
+    // slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
     name = passive ? name.slice(1) : name;
 
-    //判断第一个字符串是否是~
+    // 判断第一个字符串是否是~
     var once$$1 = name.charAt(0) === '~'; // Prefixed last, checked first
 
-    //slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
+    // slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
     name = once$$1 ? name.slice(1) : name;
-    //判断第一个字符是否是 ！
+    // 判断第一个字符是否是!
     var capture = name.charAt(0) === '!';
     //slice()，返回一个新的字符串，该方法可从已有的数组中,或者字符串中返回选定的元素。
     name = capture ? name.slice(1) : name;
@@ -2939,40 +2920,36 @@
   }
 
 
-  //更新事件 并且为新的值 添加函数 旧的值删除函数等功能
+  // 更新事件 并且为新的值 添加函数 旧的值删除函数等功能
   function updateListeners (
-    on,  //新的事件
-    oldOn, //旧的事件
-    add,  //添加事件函数
-    remove$$1, //删除事件函数
-    vm//vue 实例化对象
+    on, // 新的事件
+    oldOn, // 旧的事件
+    add, // 添加事件函数
+    remove$$1, // 删除事件函数
+    vm // vue 实例化对象
   ) {
     var name, def, cur, old, event;
     for (name in on) {  // 遍历on
-      def = cur = on[name];  //on 新的事件值
-      old = oldOn[name];  //oldOn 对象中的 与 name 匹配 并且赋值 old 估计这个是旧的值
-      event = normalizeEvent(name);   //normalizeEvent 如果是事件，则过滤 事件修饰符
+      def = cur = on[name];  // on 新的事件值
+      old = oldOn[name];  // oldOn 对象中的 与 name 匹配 并且赋值 old 估计这个是旧的值
+      event = normalizeEvent(name);   // normalizeEvent 如果是事件，则过滤 事件修饰符
 
       /* istanbul ignore if */
       // isUndef 判断值存在 并且是空的  return v === undefined || v === null
       if (isUndef(cur)) {
-        //如果不是生产环境
+        // 如果不是生产环境
         "development" !== 'production' && warn(
           "Invalid handler for event \"" + (event.name) + "\": got " + String(cur),
           vm
         );
-      } else if (isUndef(old)) {  //判断旧的值是否存在 为空的时候  没有定义旧的事件
-
-        if (isUndef(cur.fns)) { //如果函数不存在 则绑定函数
-          //函数 获取钩子函数
+      } else if (isUndef(old)) {  // 判断旧的值是否存在 为空的时候  没有定义旧的事件
+        if (isUndef(cur.fns)) { // 如果函数不存在 则绑定函数
+          // 函数 获取钩子函数
           // 创建函数调用器并重新赋值给cur和on[name]
-          cur = on[name] = createFnInvoker(cur); //这个时候cur.fns就存在了
+          cur = on[name] = createFnInvoker(cur); // 这个时候cur.fns就存在了
         }
-
-
-
         name = '&' + name; // mark the event as passive 将事件标记为被动的
-        //添加事件
+        // 添加事件
         add(
           event.name, //事件名称
           cur, // 转义过的事件 执行静态类
@@ -2981,30 +2958,28 @@
           event.passive, // 检测事件修饰符 是否是   '&'
           event.params //事件参数
         );
-
       } else if (cur !== old) {
-        //如果新的值不等于旧的值
-        //则更新新旧值
+        // 如果新的值不等于旧的值 则更新新旧值
         old.fns = cur;
         on[name] = old;
       }
     }
     for (name in oldOn) {
-      //循环旧的值 为空的时候
+      // 循环旧的值 为空的时候
       if (isUndef(on[name])) {
-        //获取事件
+        // 获取事件
         event = normalizeEvent(name);
-        //删除旧的值的事件
+        // 删除旧的值的事件
         remove$$1(event.name, oldOn[name], event.capture);
       }
     }
   }
 
   /*
-     *
-     *  合并vue vnode 钩子函数，
-      *  def[hookKey] = invoker; //把钩子函数用对象存起来
-     * */
+  *
+  *  合并vue vnode 钩子函数，
+  *  def[hookKey] = invoker; //把钩子函数用对象存起来
+  * */
 
   function mergeVNodeHook (def, hookKey, hook) {
     //判断def  是否 是vnode 实例化的对象
@@ -3476,16 +3451,16 @@
 
 
   /*
-     * 初始化事件
-     * */
+  * 初始化事件
+  * */
 
   function initEvents (vm) {
     vm._events = Object.create(null);
     vm._hasHookEvent = false;
-    // init parent attached events  初始化 父亲事件
+    // init parent attached events
     var listeners = vm.$options._parentListeners;
     if (listeners) {
-      //更新组件事件
+      // 更新组件事件
       updateComponentListeners(vm, listeners);
     }
   }
@@ -3508,18 +3483,18 @@
     }
   }
 
-  //解绑事件
+  // 解绑事件
   function remove$1 (event, fn) {
     target.$off(event, fn);
   }
 
-  //更新组件事件
-  function updateComponentListeners (vm,  //虚拟dom
-    listeners,  //新的数据队列
-    oldListeners //旧的事件数据队列
+  // 更新组件事件
+  function updateComponentListeners (vm,
+    listeners,  // 新的数据队列
+    oldListeners // 旧的事件数据队列
   ) {
     target = vm;
-    //更新数据源 并且为新的值 添加函数 旧的值删除函数等功能
+    // 更新数据源 并且为新的值 添加函数 旧的值删除函数等功能
     updateListeners(listeners, oldListeners || {}, add, remove$1, vm);
     target = undefined;
   }
@@ -3529,27 +3504,26 @@
      *
      */
   function eventsMixin (Vue) {
-    var hookRE = /^hook:/;  //开头是^hook: 的字符串
+    var hookRE = /^hook:/;  // 开头是^hook: 的字符串
     /*
-         * 添加绑定事件
-         * vm._events[event]
-         * */
+    * 添加绑定事件
+    * vm._events[event]
+    * */
     Vue.prototype.$on = function (event, fn) {
       var this$1 = this;
-
       var vm = this;
-      //如果事件是数组
+      // 如果事件是数组
       if (Array.isArray(event)) {
         for (var i = 0, l = event.length; i < l; i++) {
           //绑定事件
           this$1.$on(event[i], fn);
         }
       } else {
-        //把所有事件拆分存放到_events 数组中
+        // 把所有事件拆分存放到_events 数组中
         (vm._events[event] || (vm._events[event] = [])).push(fn);
         // optimize hook:event cost by using a boolean flag marked at registration
         // instead of a hash lookup
-        //如果是 hook: 开头的标记为vue vue系统内置钩子函数 比如vue 生命周期函数等
+        // 如果是 hook: 开头的标记为vue vue系统内置钩子函数 比如vue 生命周期函数等
         if (hookRE.test(event)) {
           vm._hasHookEvent = true;
         }
@@ -3557,38 +3531,38 @@
       return vm
     };
     /*
-         *  添加事件
-         * */
+    *  添加事件
+    * */
     Vue.prototype.$once = function (event, fn) {
       var vm = this;
 
       function on () {
-        //解绑事件
+        // 解绑事件
         vm.$off(event, on);
-        //执行事件
+        // 执行事件
         fn.apply(vm, arguments);
       }
 
       on.fn = fn;
-      //添加事件
+      // 添加事件
       vm.$on(event, on);
       return vm
     };
 
     /*
-         *  vue把事件添加到一个数组队列里面，通过删除该数组事件队列，而达到解绑事件
-         * */
+    *  vue把事件添加到一个数组队列里面，通过删除该数组事件队列，而达到解绑事件
+    * */
     Vue.prototype.$off = function (event, fn) {
       var this$1 = this;
 
       var vm = this;
       // all 如果没有参数的情况下 返回 this vm
       if (!arguments.length) {
-        //创建一个事件对象
+        // 创建一个事件对象
         vm._events = Object.create(null);
         return vm
       }
-      // array of events 如果事件是数组事件 则循环回调递归
+      // array of events 如果事件是数组事件 则递归调用
       if (Array.isArray(event)) {
         for (var i = 0, l = event.length; i < l; i++) {
           this$1.$off(event[i], fn);
@@ -3601,19 +3575,19 @@
         return vm
       }
       if (!fn) {
-        //如果函数不存在则清空函数对象属性
+        // 如果函数不存在则清空函数对象属性
         vm._events[event] = null;
         return vm
       }
       if (fn) {
         // specific handler 具体的处理程序
-        //如果函数存在 并且事件cbs是一个数组
+        // 如果函数存在 并且事件cbs是一个数组
         var cb;
         var i$1 = cbs.length;
         while (i$1--) {
           cb = cbs[i$1];
           if (cb === fn || cb.fn === fn) {
-            //清空事件数组
+            // 清空事件数组
             cbs.splice(i$1, 1);
             break
           }
@@ -3627,9 +3601,9 @@
       var vm = this;
       {
         var lowerCaseEvent = event.toLowerCase(); //转成小写
-        //如果事件转成小写之后并不相等以前字符串，并且是不存在_events 事件队列中
+        // 如果事件转成小写之后并不等于以前字符串，并且是不存在_events 事件队列中
         if (lowerCaseEvent !== event && vm._events[lowerCaseEvent]) {
-          //然后根据组件追踪发出一个警告
+          // 然后根据组件追踪发出一个警告
           tip(
             "Event \"" + lowerCaseEvent + "\" is emitted in component " +
             (formatComponentName(vm)) + " but the handler is registered for \"" + event + "\". " +
@@ -3639,20 +3613,20 @@
           );
         }
       }
-      //获取事件值
+      // 获取事件值
       var cbs = vm._events[event];
       if (cbs) {
-        //如果长度大于1 将它变成一个真正的数组
+        // 如果长度大于1 将它变成一个真正的数组
         cbs = cbs.length > 1 ? toArray(cbs) : cbs;
-        //将参数变成一个真正数组
+        // 将参数变成一个真正数组
         var args = toArray(arguments, 1);
-        //循环事件
+        // 循环事件
         for (var i = 0, l = cbs.length; i < l; i++) {
           try {
-            //执行触发事件
+            // 执行触发事件
             cbs[i].apply(vm, args);
           } catch (e) {
-            //如果发生错误则发出报错警告
+            // 如果发生错误则发出报错警告
             handleError(e, vm, ("event handler for \"" + event + "\""));
           }
         }
@@ -4383,15 +4357,14 @@
    * A watcher parses an expression, collects dependencies,
    * and fires callback when the expression value changes.
    * This is used for both the $watch() api and directives.
-   * *观察者分析表达式，收集依赖项，
+   * *观察者解析表达式，收集依赖，
    *并在表达式值更改时触发回调。
-   *这用于$watch() api和指令。
-   * 当前vue实例、updateComponent函数、空函数。
+   *这用于$watch和directive。
    */
   var Watcher = function Watcher (
-    vm, //vm dom
-    expOrFn,  //获取值的函数，或者是更新viwe试图函数
-    cb, //回调函数,回调值给回调函数
+    vm, //vue实例
+    expOrFn,  //获取值的函数，或者是更新view视图函数
+    cb, //回调函数
     options, //参数
     isRenderWatcher//是否渲染过得观察者
   ) {
@@ -4404,10 +4377,10 @@
     vm._watchers.push(this);
     // options
     if (options) { //如果有参数
-      this.deep = !!options.deep; //实际
-      this.user = !!options.user; //用户
-      this.lazy = !!options.lazy; //懒惰 ssr 渲染
-      this.sync = !!options.sync; //如果是同步
+      this.deep = !!options.deep;
+      this.user = !!options.user;
+      this.lazy = !!options.lazy;
+      this.sync = !!options.sync;
     } else {
 
       this.deep = this.user = this.lazy = this.sync = false;
@@ -4430,7 +4403,7 @@
       this.getter = expOrFn;
     } else {
       //如果是keepAlive 组件则会走这里
-      //path 因该是路由地址
+      //path 应该是路由地址
       if (bailRE.test(path)) {  //  匹配上 返回 true     var bailRE = /[^\w.$]/;  //匹配不是 数字字母下划线 $符号   开头的为true
         return
       }
@@ -4522,7 +4495,7 @@
    * Add a dependency to this directive. 向该指令添加依赖项。
    */
   Watcher.prototype.addDep = function addDep (dep) {
-    var id = dep.id; //dep.id 一个持续相加的id
+    var id = dep.id; // dep.id 自增的id
     if (!this.newDepIds.has(id)) {//如果id存在
       this.newDepIds.add(id); //添加一个id
       this.newDeps.push(dep); //添加一个deps
@@ -4559,13 +4532,13 @@
   };
 
   /**
-   * Subscriber interface.用户界面。
+   * Subscriber interface.
    * Will be called when a dependency changes.
-   * 将在依赖项更改时调用。
+   * 订阅者接口将在依赖项更改时调用。
    */
   Watcher.prototype.update = function update () {
 
-    /* istanbul ignore else  伊斯坦布尔忽略其他 */
+    /* istanbul ignore else */
     if (this.lazy) { //懒惰的 忽略
       this.dirty = true;
 
@@ -4581,8 +4554,8 @@
   };
 
   /**
-   * Scheduler job interface. 调度器的工作界面。
-   * Will be called by the scheduler. 将被调度程序调用。
+   * Scheduler job interface. 
+   * Will be called by the scheduler. 调度程序接口将被调度程序调用。
    */
   Watcher.prototype.run = function run () {
     if (this.active) { //活跃
@@ -4688,7 +4661,7 @@
   //     }
   // }
   // 设置 监听 观察者, 该函数是可以让 对象中的三级key 直接冒泡到1级key中
-  //比如 name 只能在Odata.data.name 获取到数据，执行 proxy(Odata,'data','name')之后可以Odata.name 获取值
+  // 比如 name 只能在Odata.data.name 获取到数据，执行 proxy(Odata,'data','name')之后可以Odata.name 获取值
   function proxy (target, sourceKey, key) {
     sharedPropertyDefinition.get = function proxyGetter () { //设置get函数
       return this[sourceKey][key]
@@ -4798,17 +4771,17 @@
     toggleObserving(true);
   }
 
-  //初始化数据 获取options.data 的数据 将他们添加到 监听者中
+  // 初始化数据 获取options.data 的数据 将他们添加到 监听者中
   function initData (vm) {
-    //获取到$options.data 数据
+    // 获取到$options.data 数据
     var data = vm.$options.data;
 
-    //获取data中的数据   判断如果是函数则
-    data = vm._data = typeof data === 'function' //如果data是函数
-      ? getData(data, vm)  //转换数据 如果数据是 一个函数的时候 执行该函数 拿到数据
-      : data || {}; //直接获取数据
+    // 获取data中的数据，这里判断data为函数或者对象的场景，如果为函数则每次加载会重新执行一遍，如果为对象则只执行一遍
+    data = vm._data = typeof data === 'function' // 如果data是函数
+      ? getData(data, vm)  // 拿到数据
+      : data || {}; // 直接获取数据
 
-    if (!isPlainObject(data)) { //如果不是对象 则发出警告日志
+    if (!isPlainObject(data)) { // 如果不是对象 则发出警告日志
       data = {};
       "development" !== 'production' && warn(
         'data functions should return an object:\n' +
@@ -4817,14 +4790,14 @@
       );
     }
     // proxy data on instance
-    var keys = Object.keys(data); //获取数据的key
-    var props = vm.$options.props; //获取props 属性
-    var methods = vm.$options.methods; //获取事件
-    var i = keys.length; //获取数据key的长度
-    while (i--) { //循环data
+    var keys = Object.keys(data); // 获取数据的key
+    var props = vm.$options.props; // 获取props 属性
+    var methods = vm.$options.methods; // 获取事件
+    var i = keys.length; // 获取数据key的长度
+    while (i--) { // 循环data，data的长度为0的时候不进入while循环
       var key = keys[i];
       {
-        if (methods && hasOwn(methods, key)) { //如果数据中的 key 与事件 中的定义的key 一样 则发出警告
+        if (methods && hasOwn(methods, key)) { // 如果数据中的 key 与事件 中的定义的key 一样 则发出警告
           warn(
             ("Method \"" + key + "\" has already been defined as a data property."),
             vm
@@ -4832,7 +4805,7 @@
         }
       }
 
-      if (props && hasOwn(props, key)) { //如果数据中的 key 与props属性 中的定义的key 一样 则发出警告
+      if (props && hasOwn(props, key)) { // 如果数据中的 key 与props属性 中的定义的key 一样 则发出警告
         "development" !== 'production' && warn(
           "The data property \"" + key + "\" is already declared as a prop. " +
           "Use prop default value instead.",
@@ -4992,15 +4965,15 @@
             vm
           );
         }
-        //isReserved 检查一个字符串是否以$或者_开头的字母
-        if ((key in vm) && isReserved(key)) { //事件不能以$或者_开头的字母
+        //isReserved 检查一个字符串是否以$或者_开头的字母 事件不能以$或者_开头的字母
+        if ((key in vm) && isReserved(key)) {
           warn(
             "Method \"" + key + "\" conflicts with an existing Vue instance method. " +
             "Avoid defining component methods that start with _ or $."
           );
         }
       }
-      //把事件放在最外层对象中，如果是函数为空则给一个空函数，如果是有函数则执行该函数
+      // 把事件放在最外层对象中，如果是函数为空则给一个空函数，如果是有函数则执行该函数
       vm[key] = methods[key] == null ? noop : bind(methods[key], vm);
     }
   }
@@ -6533,10 +6506,10 @@
       // a uid
       vm._uid = uid$3++; //id
 
-      var startTag,  //开始标签
-        endTag;  //结束标签
+      var startTag,
+        endTag;
       /* istanbul ignore if */
-      //浏览器性能监控
+      // 浏览器性能监控
       if ("development" !== 'production' && config.performance && mark) {
         startTag = "vue-perf-start:" + (vm._uid);
         endTag = "vue-perf-end:" + (vm._uid);
@@ -6546,17 +6519,15 @@
       // a flag to avoid this being observed 一个避免被观察到的标志
       vm._isVue = true;
       // merge options 合并选项 参数
-      if (options && options._isComponent) { //判断是否是组件
+      if (options && options._isComponent) { // 是否是组件
         // optimize internal component instantiation
         // since dynamic options merging is pretty slow, and none of the
         // internal component options needs special treatment.
-        //优化内部组件实例化
-        //因为动态选项合并非常慢，没有一个是内部组件选项需要特殊处理。
-        //初始化内部组件
+        // 优化内部组件的实例 因为动态选项合并非常慢，没有一个内部组件选项需要特殊处理。
         initInternalComponent(vm, options);
       } else {
-        // 合并参数 将两个对象合成一个对象 将父值对象和子值对象合并在一起，并且优先取值子值，如果没有则取子值
-        // 并且生命周期始终为一个数组:1762
+        // 合并参数 将两个对象合成一个对象 优先取值子值
+        // 并且生命周期始终为一个数组:1762行
         vm.$options = mergeOptions(
           resolveConstructorOptions(vm.constructor), //  //解析constructor上的options属性的
           options || {},
@@ -6568,14 +6539,14 @@
         //初始化 代理 监听
         initProxy(vm);
       }
-      // expose real self 暴露真实的self
+      // expose real self
       vm._self = vm;
       initLifecycle(vm); //初始化生命周期 标志
       initEvents(vm); //初始化事件
       initRender(vm); // 初始化渲染
       callHook(vm, 'beforeCreate'); //触发beforeCreate钩子函数
       initInjections(vm); // resolve injections before data/props 在数据/道具之前解决注入问题 //初始化 inject
-      initState(vm);  //    //初始化状态
+      initState(vm);  // 初始化props methods data computed和watch
       initProvide(vm); // resolve provide after data/props  解决后提供数据/道具  provide 选项应该是一个对象或返回一个对象的函数。该对象包含可注入其子孙的属性，用于组件之间通信。
       callHook(vm, 'created'); //触发created钩子函数
 
@@ -6602,15 +6573,8 @@
     options //选项参数
   ) {
     var opts = vm.$options = Object.create(vm.constructor.options); //vm的参数
-    // doing this because it's faster than dynamic enumeration. 这样做是因为它比动态枚举快。
-    // var options = {
-    //     _isComponent: true, //是否是组件
-    //     parent: parent, //组件的父节点
-    //     _parentVnode: vnode, //组件的 虚拟vonde 父节点
-    //     _parentElm: parentElm || null, //父节点的dom el
-    //     _refElm: refElm || null //当前节点 el
-    // }
-    var parentVnode = options._parentVnode;
+    // doing this because it's faster than dynamic enumeration. 这样做是因为它比直接枚举快。
+    var parentVnode = options._parentVnode; // 只要超过一次调用就要缓存，这是个编码的好习惯
     opts.parent = options.parent; //组件的父节点
     opts._parentVnode = parentVnode; //组件的 虚拟vonde 父节点
     opts._parentElm = options._parentElm; //父节点的dom el
@@ -6628,12 +6592,12 @@
     }
   }
 
-  //解析new Vue constructor上的options拓展参数属性的 合并 过滤去重数据
+  // 解析new Vue constructor上的options拓展参数属性的 合并 过滤去重数据
   function resolveConstructorOptions (Ctor) {
     var options = Ctor.options;
     // 有super属性，说明Ctor是Vue.extend构建的子类 继承的子类
     if (Ctor.super) { //超类
-      var superOptions = resolveConstructorOptions(Ctor.super); //回调超类 表示继承父类
+      var superOptions = resolveConstructorOptions(Ctor.super); // 回调超类 表示继承父类
       var cachedSuperOptions = Ctor.superOptions; // Vue构造函数上的options,如directives,filters,....
       if (superOptions !== cachedSuperOptions) { //判断如果 超类的options不等于子类的options 的时候
         // super option changed,
@@ -6723,7 +6687,6 @@
   eventsMixin(Vue); // 给vue原型绑定$off, $on, $once方法
   lifecycleMixin(Vue); // 给vue原型绑定$destroy, $emit, $forceUpdate, _update方法
   renderMixin(Vue); // 给vue原型绑定_render, $nextTick和一些工具方法
-  console.log(Vue.prototype, 'Vue.prototype');
 
 
   /*  */
@@ -7520,7 +7483,6 @@
 
   //插入节点 在referenceNode  dom 前面插入一个节点
   function insertBefore (parentNode, newNode, referenceNode) {
-    console.log(parentNode, newNode, referenceNode, 'parentNode, newNode, referenceNode');
     parentNode.insertBefore(newNode, referenceNode);
   }
 
@@ -10098,13 +10060,13 @@
     var oldOn = oldVnode.data.on || {};
     target$1 = vnode.elm; //真实的dom
     normalizeEvents(on);    //为事件 多添加 change 或者input 事件加进去
-    //更新数据源 并且为新的值 添加函数 旧的值删除函数等功能
+    // 更新数据源 并且为新的值 添加函数 旧的值删除函数等功能
     updateListeners(
-      on, //新的事件对象
-      oldOn, //旧的事件对象
-      add$1, //添加真实dom的事件函数
-      remove$2, //删除真实dom的事件函数
-      vnode.context //vue 实例化的对象 new Vue 或者组件 构造函数实例化的对象
+      on, // 新的事件对象
+      oldOn, // 旧的事件对象
+      add$1, // 添加真实dom的事件函数
+      remove$2, // 删除真实dom的事件函数
+      vnode.context // vue 实例化的对象 new Vue 或者组件 构造函数实例化的对象
     );
     target$1 = undefined;
   }
