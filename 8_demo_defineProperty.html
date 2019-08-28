@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>8_demo_defineProperty</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <label for="inpt">数据绑定：<input type="text" id="inpt1"></label>
+    <br>
+    <label for="inpt">数据绑定：<input type="text" id="inpt2"></label>
+    <br>
+    结果：<span id="text"></span>
+  </div>
+  <script>
+    window.onload = function() {
+      const inpt1 = document.querySelector('#inpt1')
+      const inpt2 = document.querySelector('#inpt2')
+      const text = document.querySelector('#text')
+      let obj = {}
+      Object.defineProperty(obj, 'value', {
+        configurable: true, // 是否可修改描述符/删除，默认false
+        enumerable: true, // 是否可枚举，默认false
+        get: function() {
+          return text.innerHTML
+        },
+        set: function(val) {
+          inpt1.value = val
+          inpt2.value = val
+          text.innerHTML = val
+        }
+      })
+      inpt1.oninput = function() {
+        obj.value = this.value
+      }
+      inpt2.oninput = function() {
+        obj.value = this.value
+      }
+    }
+  </script>
+</body>
+
+</html>
