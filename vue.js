@@ -2465,19 +2465,18 @@
   /*  */
   /* globals MessageChannel 全局消息通道 */
 
-  //回调函数队列
+  // 回调函数队列
   var callbacks = [];
   var pending = false;
   // 触发 callbacks 队列中的函数
   function flushCallbacks () {
-
     pending = false;
-    //.slice(0) 浅拷贝
+    // .slice(0) 浅拷贝
     var copies = callbacks.slice(0);
     callbacks.length = 0;
 
     for (var i = 0; i < copies.length; i++) {
-      //执行回调函数
+      // 执行回调函数
       copies[i]();
     }
   }
@@ -2518,15 +2517,10 @@
     isNative(MessageChannel) ||
     MessageChannel.toString() === '[object MessageChannelConstructor]'
   )) {
-    //如果有 消息体 内置函数则实例化
     var channel = new MessageChannel();
-    //获取端口2
     var port = channel.port2;
-    //设置端口1 的接受函数为flushCallbacks
     channel.port1.onmessage = flushCallbacks;
-    //端口2推送信息给端口1
     macroTimerFunc = function () {
-
       port.postMessage(1);
     };
   } else {
@@ -2537,37 +2531,39 @@
   }
 
   // Determine microtask defer implementation.
-  //确定微任务延迟执行。
+  // 确定微任务延迟执行。
   /* istanbul ignore next, $flow-disable-line */
   if (typeof Promise !== 'undefined' && isNative(Promise)) {
     // 声明一个成功的 Promise
     var p = Promise.resolve();
-    //microTimerFunc 一个异步 队列函数
+    // microTimerFunc 一个异步 队列函数
     microTimerFunc = function () {
       p.then(flushCallbacks);
-      // in problematic UIWebViews, Promise.then doesn't completely break, but 在有问题的UIWebVIEW中，Promise.then并没有完全崩溃，而是
-      // it can get stuck in a weird state where callbacks are pushed into the 它可能会陷入一种怪异的状态，其中回调被推到
-      // microtask queue but the queue isn't being flushed, until the browser 微任务队列，但队列没有刷新，直到浏览器
-      // needs to do some other work, e.g. handle a timer. Therefore we can 需要做一些其他的工作，例如处理计时器。因此我们可以
-      // "force" the microtask queue to be flushed by adding an empty timer. [强制]通过添加空计时器来刷新微任务队列。
-      //如果是ios 执行下 noop 空函数
+      // in problematic UIWebViews, Promise.then doesn't completely break, but
+      // it can get stuck in a weird state where callbacks are pushed into the
+      // microtask queue but the queue isn't being flushed, until the browser
+      // needs to do some other work, e.g. handle a timer. Therefore we can
+      // "force" the microtask queue to be flushed by adding an empty timer.
+      // 在不确定的UIWebViews中，Promise.then不会完全崩溃，但当回调队列被推入不会被刷新的微任务时，
+      // 它能够陷入一个怪异的状态中，直到浏览器需要一些其他的工作，例如，添加一个timer。因此，我们能够
+      // 添加一个空timer用来强制启动微任务
+      // 如果是ios 执行下 noop 空函数
       if (isIOS) {
         setTimeout(noop);
       }
     };
   } else {
     // fallback to macro
-    //回归宏
-
     microTimerFunc = macroTimerFunc;
   }
 
   /**
-   * Wrap a function so that if any code inside triggers state change, 包装一个函数，如果内部的任何代码触发状态改变，
-   * the changes are queued using a (macro) task instead of a microtask. 使用宏（宏）任务而不是微任务对这些队列进行排队
+   * Wrap a function so that if any code inside triggers state change,
+   * the changes are queued using a (macro) task instead of a microtask.
    */
+  // 包装一个函数，以便于如果任何内部代码触发状态的变化
+  // 那些变化是有序地使用宏任务，而不是微任务
   function withMacroTask (fn) {
-    //宏任务
     return fn._withTask || (fn._withTask = function () {
       useMacroTask = true;
       var res = fn.apply(null, arguments);
@@ -2593,23 +2589,20 @@
         _resolve(ctx);
       }
     });
-
     if (!pending) {
-
       pending = true;
-      //执行异步宏任务
+      // 执行异步宏任务
       if (useMacroTask) {
-
-        macroTimerFunc(); //异步触发 或者 实现观察者 触发  callbacks 队列中的函数
+        macroTimerFunc(); // 异步触发 或者 实现观察者 触发  callbacks 队列中的函数
       } else {
-        microTimerFunc(); //异步触发 或者 实现观察者 触发  callbacks 队列中的函数
+        microTimerFunc(); // 异步触发 或者 实现观察者 触发  callbacks 队列中的函数
       }
     }
 
 
     // $flow-disable-line
     if (!cb && typeof Promise !== 'undefined') {
-      //如果回调函数不存在 则声明一个Promise 函数
+      // 如果回调函数不存在 则声明一个Promise 函数
       return new Promise(function (resolve) {
         _resolve = resolve;
       })
@@ -2622,7 +2615,7 @@
   var measure;
 
   {
-    //浏览器性能监控
+    // 浏览器性能监控
     var perf = inBrowser && window.performance;
     /* istanbul ignore if */
     if (
@@ -6341,72 +6334,60 @@
     installRenderHelpers(Vue.prototype);
 
     Vue.prototype.$nextTick = function (fn) {
-      //为callbacks 收集队列cb 函数 并且根据 pending 状态是否要触发callbacks 队列函数
+      // 为callbacks 收集队列cb 函数 并且根据 pending 状态是否要触发callbacks 队列函数
       return nextTick(fn, this)
     };
-    //渲染函数
+    // 渲染函数
     Vue.prototype._render = function () {
       var vm = this;
-      //获取vm参数
+      // 获取vm参数
       var ref = vm.$options;
-      /*
-             render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
-             (function anonymous( ) {
-                   with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0)])}
-             })
-             */
       var render = ref.render;
       var _parentVnode = ref._parentVnode;
 
       // reset _rendered flag on slots for duplicate slot check
-      //重置槽上的_render标记，以检查重复槽
+      // 重置槽上的_render标记，以检查重复槽
       {
         for (var key in vm.$slots) {
           // $flow-disable-line
-          //标志位
+          // 标志位
           vm.$slots[key]._rendered = false;
         }
       }
 
-      if (_parentVnode) {  //判断是否有parentVnode
-        // data.scopedSlots = {default: children[0]};  //获取插槽
+      if (_parentVnode) {  // 判断是否有parentVnode
+        // data.scopedSlots = {default: children[0]};  // 获取插槽
         vm.$scopedSlots = _parentVnode.data.scopedSlots || emptyObject;
       }
 
       // set parent vnode. this allows render functions to have access
-      //设置父vnode。这允许呈现函数具有访问权限
       // to the data on the placeholder node.
-      //到占位符节点上的数据。
+      // 设置父vnode。这允许渲染方法便于访问placeholder节点上的数据
 
-      //把父层的Vnode 赋值的到$vnode
       vm.$vnode = _parentVnode;
       // render self
       var vnode;
       try {
-        //创建一个空的组件
+        // 创建一个空的组件
         // vm.$options.render = createEmptyVNode;
         //_renderProxy 代理拦截
         /*
-                 render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
-                 (function anonymous(
-                 ) {
+          render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
+          (function anonymous(
+          ) {
 
-                      with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0),_v(" "),_c('div',[_v("\n        "+_s(message)+"\n    ")])])}
-                 })
-                 */
-
+              with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0),_v(" "),_c('div',[_v("\n        "+_s(message)+"\n    ")])])}
+          })
+        */
         vnode = render.call(
-          vm._renderProxy, //this指向 其实就是vm
-          vm.$createElement //这里虽然传参进去但是没有接收参数
+          vm._renderProxy, // this指向 其实就是vm
+          vm.$createElement // 这里虽然传参进去但是没有接收参数
         );
-
-
-      } catch (e) { //收集错误信息 并抛出
+      } catch (e) { // 收集错误信息 并抛出
         handleError(e, vm, "render");
         // return error render result,
         // or previous vnode to prevent render error causing blank component
-        //返回错误渲染结果，
-        //或以前的vnode，以防止渲染错误导致空白组件
+        // 返回错误渲染结果或以前的vnode，以防止渲染错误导致空组件
         /* istanbul ignore else */
         {
           if (vm.$options.renderError) {
@@ -6421,7 +6402,8 @@
           }
         }
       }
-      // return empty vnode in case the render function errored out 如果呈现函数出错，返回空的vnode
+      // return empty vnode in case the render function errored out
+      // 如果渲染函数执行错误，返回空的vnode
       if (!(vnode instanceof VNode)) {
         if ("development" !== 'production' && Array.isArray(vnode)) {
           warn(
@@ -6430,11 +6412,11 @@
             vm
           );
         }
-        //创建一个节点 为注释节点 空的vnode
+        // 创建一个节点 为注释节点 空的vnode
         vnode = createEmptyVNode();
       }
       // set parent
-      vnode.parent = _parentVnode; //设置父vnode
+      vnode.parent = _parentVnode;
       return vnode
     };
   }
