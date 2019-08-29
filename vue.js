@@ -2482,45 +2482,48 @@
     }
   }
 
-  // Here we have async deferring wrappers using both microtasks and (macro) tasks. 在这里，我们使用了微任务和宏任务的异步包装器。
-  // In < 2.4 we used microtasks everywhere, but there are some scenarios where 在< 2.4中，我们到处使用微任务，但也有一些场景。
-  // microtasks have too high a priority and fire in between supposedly  微任务优先级太高，据称介于两者之间。
-  // sequential events (e.g. #4521, #6690) or even between bubbling of the same 序贯事件（例如α4521，α6690），甚至在同一气泡之间
-  // event (#6566). However, using (macro) tasks everywhere also has subtle problems 事件（α6566）。然而，到处使用（宏）任务也有微妙的问题。
-  // when state is changed right before repaint (e.g. #6813, out-in transitions). 当状态在重新绘制之前被正确改变（例如，α6813，在过渡中出现）。
-  // Here we use microtask by default, but expose a way to force (macro) task when  这里，我们默认使用微任务，但是暴露一种方法来强制（宏）任务
-  // needed (e.g. in event handlers attached by v-on). 需要的（例如在事件处理程序中附加的V-on）。
+  // Here we have async deferring wrappers using both microtasks and (macro) tasks.
+  // In < 2.4 we used microtasks everywhere, but there are some scenarios where
+  // microtasks have too high a priority and fire in between supposedly
+  // sequential events (e.g. #4521, #6690) or even between bubbling of the same
+  // event (#6566). However, using (macro) tasks everywhere also has subtle problems
+  // when state is changed right before repaint (e.g. #6813, out-in transitions).
+  // Here we use microtask by default, but expose a way to force (macro) task when
+  // needed (e.g. in event handlers attached by v-on).
+  // 在这里，我们使用了异步延迟的关于使用微任务和宏任务的包裹器
+  // 在小于2.4版本中，我们到处使用微任务，但他们是一些场景，
+  // 这些场景指的是微任务用有非常高的优先级和可能
+  // 在连续的事件甚至冒泡的事件之间被触发，
+  // 然而，当状态在重绘前被正确修改时（如过渡），到处使用(宏)任务也有一些难以捉摸的问题
+  // 这里我们默认使用微任务，但是如果需要的话会暴露一个方法用于使用宏任务（例如v-on）
 
 
-  var microTimerFunc; //微计时器功能
-  var macroTimerFunc; //宏计时器功能
-  var useMacroTask = false; //使用宏任务
+  var microTimerFunc; // 微任务计时器
+  var macroTimerFunc; // 宏任务计时器
+  var useMacroTask = false;
 
-  // Determine (macro) task defer implementation. 确定（宏）任务延迟实现。
-  // Technically setImmediate should be the ideal choice, but it's only available 技术上应该是理想的选择，但它是唯一可用的。
+  // Determine (macro) task defer implementation.
+  // Technically setImmediate should be the ideal choice, but it's only available
   // in IE. The only polyfill that consistently queues the callback after all DOM 在IE.中，唯一的填充在所有DOM之后始终排队回叫。
-  // events triggered in the same loop is by using MessageChannel. 在同一循环中触发的事件是通过使用消息通道。
+  // events triggered in the same loop is by using MessageChannel.
+  // 决定（宏）任务延迟实现
+  // 技术上的setImmediate应该是一个理想的选择，但它仅仅是可用的
+  // 在IE中，一个为了解决一致的回调队列在所有DOM事件在同一个循环中被触发的polyfill是通过使用MessageChannel
   /* istanbul ignore if */
-  //判断setImmediate 是否存在，如果存在则判断下是是否是系统内置函数
   if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
-    //函数表达式赋值给macroTimerFunc
     macroTimerFunc = function () {
-
       setImmediate(flushCallbacks);
     };
   } else if (typeof MessageChannel !== 'undefined' && (
     isNative(MessageChannel) ||
-    // PhantomJS
     MessageChannel.toString() === '[object MessageChannelConstructor]'
   )) {
     //如果有 消息体 内置函数则实例化
     var channel = new MessageChannel();
     //获取端口2
     var port = channel.port2;
-
     //设置端口1 的接受函数为flushCallbacks
     channel.port1.onmessage = flushCallbacks;
-
     //端口2推送信息给端口1
     macroTimerFunc = function () {
 
@@ -2528,9 +2531,7 @@
     };
   } else {
     /* istanbul ignore next */
-    // 异步执行
     macroTimerFunc = function () {
-
       setTimeout(flushCallbacks, 0);
     };
   }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>9_demo_messageChannel</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+  </div>
+  <script>
+    const mc = new MessageChannel()
+    const port1 = mc.port1
+    const port2 = mc.port2
+    let i = 0
+    port1.onmessage = function(e) {
+      console.log('port1收到来自port2的数据：' + e.data)
+    }
+    port2.onmessage = function(e) {
+      console.log('port2收到来自port1的数据：' + e.data)
+    }
+    for (let index = 0; index < 5; index++) {
+      setTimeout(()=>{
+        port1.postMessage('哈哈，我是port1，我要发送消息给port2啦!' + index)
+        port2.postMessage('哈哈，我是port2，我要发送消息给port1啦!' + index)
+      },1000)
+    }
+    setInterval(()=>{
+      i++
+      port1.postMessage('哈哈，我是port1，我要发送消息给port2啦!' + i)
+      port2.postMessage('哈哈，我是port2，我要发送消息给port1啦!' + i)
+    }, 20000)
+    // 参考文章：https://www.jianshu.com/p/4f07ef18b5d7
+  </script>
+</body>
+
+</html>
