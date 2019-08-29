@@ -6622,9 +6622,7 @@
     //安装 Vue.js 插件。
     Vue.use = function (plugin) {
       var installedPlugins = (this._installedPlugins || (this._installedPlugins = []));
-      //
-      if (installedPlugins.indexOf(plugin) > -1) { //判断是否已经安装过插件了
-
+      if (installedPlugins.indexOf(plugin) > -1) { // 判断是否已经安装过插件了
         return this
       }
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>10_demo_mVue</title>
+</head>
+
+<body>
+<div id="app">
+  {{ msg }}
+</div>
+<script>
+  function mVue(options) {
+    this.el = options.el || ''
+    this.data = options.data
+    if(this.el) {
+      this.$mount(this.el)
+    }
+  }
+  mVue.prototype.$mount = function(el) {
+    const root = document.querySelector(el)
+    const reg = /^\{\{\s?(\w*)\s?\}\}$/g
+    let vars = root.innerText.replace(reg, '$1')
+    const val = this.data()[vars]
+    root.innerHTML = val
+  }
+  new mVue({
+    el: '#app',
+    data() {
+      return {
+        msg: 'Hello world'
+      }
+    }
+  })
+</script>
+</body>
+
+</html>
