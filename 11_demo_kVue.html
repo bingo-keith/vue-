@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>11_demo_mVue</title>
+</head>
+
+<body>
+<div id="app">
+  <div>{{ msg }}</div>
+</div>
+<script>
+// 核心逻辑，获取dom，遍历dom，获取{{}}，k-和@开头的，设置响应式
+class Compile {
+  constructor(el, vm) {
+    this.$el = document.querySelector(el)
+    this.$vm = vm
+    if(this.$el) {
+      this.$fragment = this.node2Fragment(this.$el)
+      this.compile(this.$fragment)
+      this.$el.appendChild(this.$fragment)
+    }
+  }
+  // 遍历片段，提升性能
+  node2Fragment(el) {
+    const frag = document.createDocumentFragment()
+    let child
+    while((child = el.firstChild)) {
+      frag.appendChild(child)
+    }
+    return frag
+  }
+  // 编译mVue模版语法
+  compile(el) {
+    const childNoes = el.childNodes
+    Array.from(childNoes).forEach(node => {
+      if(this.isElement(node)) { // 元素
+        const nodeAttrs = node.attributes
+        Array.from(nodeAttrs).forEach(attr => {
+          const attrName = attr.name
+          const exp = attr.value
+          if(this.isDirective(attrName)) { // 指令
+            // k-text
+            const dir = attrName.substring(2)
+            this[dir] && this[dir](node, this.$vm, exp)
+          }
+          if(this.isEvent(attrName)) {
+            // @click
+            const dir = attrName.substring(1)
+            this.eventHandler(node, this.$vm, exp, dir)
+          }
+        })
+      } else if(this.isInterpolation(node)) { // 文本
+        this.compileText(node)
+      }
+      // 递归子节点
+      if(node.childNodes && node.childNodes.length) {
+        this.compile(node)
+      }
+    })
+  }
+  compileText(node) {
+    this.update(node, this.$vm, RegExp.$1, 'text')
+  }
+  update(node, vm, exp, dir) {
+    const updaterFn = this[dir + 'Updater']
+    // 初始化
+    updaterFn && updaterFn(node, vm[exp])
+    // 依赖收集
+    new Watcher(vm, exp, function(value) {
+      updaterFn && updaterFn(node, value)
+    })
+  }
+  text(node, vm, exp) {
+    this.update(node, vm, exp, 'text')
+  }
+  // 双向数据绑定
+  model(node, vm, exp) {
+    // 指定input的value属性
+    this.update(node, vm, exp, 'model')
+    // 视图对模型响应
+    node.addEventLisener('input', e => {
+      vm[exp] = e.target.value
+    })
+  }
+  html(node, vm, exp) {
+    this.update(node, vm, exp, 'html')
+  }
+  modelUpdater(node, value) {
+    node.value = value
+  }
+  htmlUpdater(node, value) {
+    node.innerHTML = value
+  }
+  textUpdater(node, value) {
+    node.textContent = value
+  }
+  // 事件处理器
+  eventHandler(node, vm, exp, dir) {
+    // @click = "onClick"
+    let fn = vm.$options.methods && vm.$options.methods[exp]
+    if(dir && fn) {
+      node.addEventLisener(dir, fn.bind(vm))
+    }
+  }
+  // 工具方法
+  isDirective(attr) {
+    return attr.indexOf('k-') === 0
+  }
+  isEvent(attr) {
+    return attr.indexOf('@') === 0 || attr.indexOf('k-on')
+  }
+  isElement(node) {
+    return node.nodeType === 1
+  }
+  // 插值文本
+  isInterpolation(node) {
+    return node.nodeType === 3 && /\{\{\s(.*)\s\}\}/.test(node.textContent)
+  }
+}
+</script>
+
+<script>
+  class KVue {
+    constructor(options) {
+      this.$options = options
+      // 数据响应化
+      this.$data = options.data
+      this.observe(this.$data)
+      // 新建一个Watcher观察者对象，这时候Dep.target会指向这个Watcher对象
+      // 在这里模拟render过程，为了触发test属性的get函数
+      console.log('模拟render，触发test的getter', this.$data)
+
+      new Compile(options.el, this)
+
+      if(options.created) {
+        options.created.call(this)
+      }
+    }
+    observe(dataObj) {
+      if(!dataObj || typeof dataObj !== 'object') {
+        return
+      }
+
+      // 遍历该对象
+      Object.keys(dataObj).forEach(key => {
+        // 监听data里的每一个数据
+        this.defineReactive(dataObj, key, dataObj[key])
+        // 代理data中的属性到kVue实例上
+        this.proxyData(key)
+      })
+    }
+    defineReactive(obj, key, val) {
+      // 递归解决数据嵌套
+      this.observe(val)
+      const dep = new Dep()
+      Object.defineProperty(obj, key, {
+        get() {
+          Dep.target && dep.addDep(Dep.target)
+          return val
+        },
+        set(newVal) {
+          if(newVal === val) return
+          val = newVal
+          dep.notify()
+        }
+      })
+    }
+    proxyData(key) {
+      Object.defineProperty(this, key, {
+        get() {
+          return this.$data[key]
+        },
+        set(newVal) {
+          this.$data[key] = newVal
+        }
+      })
+    }
+  }
+
+  class Dep {
+    constructor(vm, key, cb) {
+      // 这里存放依赖
+      this.deps = []
+    }
+    addDep(dep) {
+      this.deps.push(dep)
+    }
+    notify() {
+      this.deps.forEach(dep => dep.update())
+    }
+  }
+
+  class Watcher {
+    constructor(vm, key, cb) {
+      this.vm = vm
+      this.key = key
+      this.cb = cb
+      // 将当前watcher实例指定到Dep静态属性target上
+      Dep.target = this
+      // 触发getter，添加依赖
+      this.vm[this.key]
+      Dep.target = null
+    }
+    update() {
+      // console.log("属性更新了");
+      this.cb.call(this.vm, this.vm[this.key])
+    }
+  }
+</script>
+
+<script>
+  const kVue = new KVue({
+    el: '#app',
+    data: {
+      msg: 'test'
+    }
+  })
+</script>
+
+</body>
+
+</html>

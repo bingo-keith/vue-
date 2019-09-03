@@ -491,16 +491,16 @@
 
 
   var LIFECYCLE_HOOKS = [
-    'beforeCreate',  //  生命周期 开始实例化 vue 指令
-    'created',       //生命周期   结束实例化完 vue 指令
-    'beforeMount',  //生命周期 开始渲染虚拟dom ，挂载event 事件 指令
-    'mounted',      //生命周期  渲染虚拟dom ，挂载event 事件 完 指令
-    'beforeUpdate',  //生命周期  开始更新wiew 数据指令
-    'updated',       //生命周期  结束更新wiew 数据指令
-    'beforeDestroy', //生命周期  开始销毁 new 实例 指令
-    'destroyed',     //生命周期  结束销毁 new 实例 指令
-    'activated',   //keep-alive组件激活时调用。
-    'deactivated',  //deactivated keep-alive组件停用时调用。
+    'beforeCreate',  // 生命周期 开始实例化 vue 指令
+    'created',       // 生命周期   结束实例化完 vue 指令
+    'beforeMount',  // 生命周期 开始渲染虚拟dom ，挂载event 事件 指令
+    'mounted',      // 生命周期  渲染虚拟dom ，挂载event 事件 完 指令
+    'beforeUpdate',  // 生命周期  开始更新wiew 数据指令
+    'updated',       // 生命周期  结束更新wiew 数据指令
+    'beforeDestroy', // 生命周期  开始销毁 new 实例 指令
+    'destroyed',     // 生命周期  结束销毁 new 实例 指令
+    'activated',   // keep-alive组件激活时调用。
+    'deactivated',  // deactivated keep-alive组件停用时调用。
     'errorCaptured'  // 具有此钩子的组件捕获其子组件树（不包括其自身）中的所有错误（不包括在异步回调中调用的那些）。
   ];
   /*  */
@@ -3105,20 +3105,24 @@
 
   /*  */
 
-  // The template compiler attempts to minimize the need for normalization by 模板编译器试图最小化对规范化的需要。
-  // statically analyzing the template at compile time. 在编译时静态分析模板。
+  // The template compiler attempts to minimize the need for normalization by
+  // statically analyzing the template at compile time.
+  // 模版编译器尝试在编译时压缩对静态分析模版被标准化的需要
   //
-  // For plain HTML markup, normalization can be completely skipped because the 对于普通HTML标记，可以完全跳过标准化，因为
-  // generated render function is guaranteed to return Array<VNode>. There are 生成的渲染函数保证返回数组<VNoCT>。有
-  // two cases where extra normalization is needed: 需要额外标准化的两种情况：
+  // For plain HTML markup, normalization can be completely skipped because the 
+  // generated render function is guaranteed to return Array<VNode>. There are 
+  // two cases where extra normalization is needed: 
+  // 对于简单的html标记，标准化能被完全地略过，因为生成渲染的工具方法能保证返回数组。这里有两个需要额外标准化的案例：
 
-  // 1. When the children contains components - because a functional component 当儿童包含组件时，因为函数组件
-  // may return an Array instead of a single root. In this case, just a simple 可以返回数组而不是单个根。在这种情况下，只是一个简单的例子
-  // normalization is needed - if any child is an Array, we flatten the whole 规范化是必要的-如果任何一个孩子是一个数组，我们扁平化整个
-  // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep 和Array.prototype.concat在一起。保证仅为1级深
-  // because functional components already normalize their own children. 因为功能组件已经规范了他们自己的孩子。
+  // 1. When the children contains components - because a functional component
+  // may return an Array instead of a single root. In this case, just a simple
+  // normalization is needed - if any child is an Array, we flatten the whole
+  // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
+  // because functional components already normalize their own children.
+  // 1、当子节点包含组件时 - 因为一个函数式组件可以返回一个数组，而不是一个根节点。这种情况下，只是一个简单的标准化被需要 - 如果任何一个子节点是数组，我们用Array.prototype.concat扁平化整个的
+  // 它保证了仅有1个层级，因为函数式组件已经标准化了它们的子组件
 
-  //循环子节点children，把他连在一起，其实就是把伪数组变成真正的数组
+  // 循环子节点children，把他连在一起，其实就是把伪数组变成真正的数组
   function simpleNormalizeChildren (children) {
     for (var i = 0; i < children.length; i++) {
       if (Array.isArray(children[i])) {
@@ -3128,16 +3132,20 @@
     return children
   }
 
-  // 2. When the children contains constructs that always generated nested Arrays, 2。当子类包含总是生成嵌套数组的结构时，
-  // e.g. <template>, <slot>, v-for, or when the children is provided by user 例如，模板缝隙＞＜＞、＜V时，或当孩子由用户提供
-  // with hand-written render functions / JSX. In such cases a full normalization       具有手写渲染功能/JSX。在这种情况下，完全归一化。
+  // 2. When the children contains constructs that always generated nested Arrays,
+  // e.g. <template>, <slot>, v-for, or when the children is provided by user
+  // with hand-written render functions / JSX. In such cases a full normalization
   // is needed to cater to all possible types of children values.   需要满足所有可能的儿童价值类型。
+  // 2、当子节点包含总是被生成嵌套数组的结构时
+  // 例如，<template>, <slot>, v-for 或者当子组件被用户提供时，这些用户是手写的渲染函数或jsx。
+  // 在这种情况下，一个完整的标准化需要满足所有子节点的可能的类型
+
   //判断children的数据类型 而创建不同的虚拟dom vonde
   function normalizeChildren (children) {
-    return isPrimitive(children) ?  //判断数据类型是否是string，number，symbol，boolean
+    return isPrimitive(children) ?  // 判断数据类型是否是原始类型string，number，symbol，boolean
       [createTextVNode(children)]  // 创建一个文本节点
-      : Array.isArray(children) ?  //判断是否是数组
-        normalizeArrayChildren(children) //创建一个规范的子节点数组。
+      : Array.isArray(children) ?  // 判断是否是数组
+        normalizeArrayChildren(children) // 创建一个规范的子节点数组。
         : undefined
   }
 
@@ -3147,7 +3155,7 @@
   }
 
 
-  //规范的子节点
+  // 规范的子节点
   //  normalizeArrayChildren接收 2 个参数，
   //  children 表示要规范的子节点，nestedIndex 表示嵌套的索引，
 
@@ -3861,10 +3869,10 @@
     };
   }
 
-  //安装组件
+  // 安装组件
   function mountComponent (
-    vm,  //vnode
-    el,  //dom
+    vm,  // vnode
+    el,  // dom
     hydrating
   ) {
     vm.$el = el; //dom
@@ -6041,33 +6049,33 @@
   // wrapper function for providing a more flexible interface 闭包提供更灵活的接口
   // without getting yelled at by flow 
 
-  //创建dom节点
+  // 创建dom节点
   function createElement (
-    context, //vm new Vue 实例化的对象
-    tag, //标签标签名称
-    data, //标签数据，包括属性，class style 指令等
-    children, //子节点
-    normalizationType,//应该设置为常量ALWAYS_NORMALIZE的值
-    alwaysNormalize //布尔值 是否是真的是true
+    context, // vm new Vue 实例化的对象
+    tag, // 标签标签名称
+    data, // 标签数据，包括属性，class style 指令等
+    children, // 子节点
+    normalizationType,// 应该设置为常量ALWAYS_NORMALIZE的值
+    alwaysNormalize // 布尔值 是否是真的是true
 
   ) {
 
-    //如果数据是数组  或者是  //判断数据类型是否是string，number，symbol，boolean
+    // 如果数据是数组  或者是  // 判断数据类型是否是string，number，symbol，boolean
     if (Array.isArray(data) || isPrimitive(data)) {
       normalizationType = children;
       children = data;
       data = undefined;
     }
-    //如果是真的是  true
+    // 如果是真的是  true
     if (isTrue(alwaysNormalize)) {
-      normalizationType = ALWAYS_NORMALIZE; //type等于2
+      normalizationType = ALWAYS_NORMALIZE; // type等于2
     }
-    //创建节点
+    // 创建节点
     return _createElement(
-      context, //vm new Vue 实例化的对象
-      tag,//节点标签
-      data, //标签数据，包括属性，class style 指令等
-      children, //子节点
+      context, // vm new Vue 实例化的对象
+      tag, // 节点标签
+      data, // 标签数据，包括属性，class style 指令等
+      children, // 子节点
       normalizationType
     )
   }
@@ -6268,7 +6276,7 @@
     var options = vm.$options; //获取参数
     var parentVnode = vm.$vnode = options._parentVnode; // the placeholder node in parent tree 父树中的占位符节点
     var renderContext = parentVnode && parentVnode.context; // this 上下文
-    //判断children 有没有分发式插槽 并且过滤掉空的插槽,并且收集插槽
+    // 判断children 有没有分发式插槽 并且过滤掉空的插槽,并且收集插槽
     vm.$slots = resolveSlots(options._renderChildren, renderContext);
     vm.$scopedSlots = emptyObject;
     // bind the createElement fn to this instance
@@ -6452,7 +6460,7 @@
         // 优化内部组件的实例 因为动态选项合并非常慢，没有一个内部组件选项需要特殊处理。
         initInternalComponent(vm, options);
       } else {
-        // 合并参数 将两个对象合成一个对象 优先取值子值
+        // 合并配置 将两个对象合成一个对象 优先取值子值
         // 并且生命周期始终为一个数组:1762行
         vm.$options = mergeOptions(
           resolveConstructorOptions(vm.constructor), //  //解析constructor上的options属性的
@@ -6467,10 +6475,10 @@
       }
       // expose real self
       vm._self = vm;
-      initLifecycle(vm); //初始化生命周期 标志
-      initEvents(vm); //初始化事件
+      initLifecycle(vm); // 初始化生命周期 标志
+      initEvents(vm); // 初始化事件
       initRender(vm); // 初始化渲染
-      callHook(vm, 'beforeCreate'); //触发beforeCreate钩子函数
+      callHook(vm, 'beforeCreate'); // 触发beforeCreate钩子函数
       initInjections(vm); // resolve injections before data/props 在数据/道具之前解决注入问题 //初始化 inject
       initState(vm);  // 初始化props methods data computed和watch
       initProvide(vm); // resolve provide after data/props  解决后提供数据/道具  provide 选项应该是一个对象或返回一个对象的函数。该对象包含可注入其子孙的属性，用于组件之间通信。
@@ -7575,32 +7583,32 @@
   }
 
   // TODO 看下这个方法
-  //创建虚拟dom
+  // 创建虚拟dom
   function createPatchFunction (backend) {
     /*
          var nodeOps = Object.freeze({
-         createElement: createElement$1, //创建一个真实的dom
-         createElementNS: createElementNS, //创建一个真实的dom svg方式
+         createElement: createElement$1, // 创建一个真实的dom
+         createElementNS: createElementNS, // 创建一个真实的dom svg方式
          createTextNode: createTextNode, // 创建文本节点
          createComment: createComment,  // 创建一个注释节点
-         insertBefore: insertBefore,  //插入节点 在xxx  dom 前面插入一个节点
-         removeChild: removeChild,   //删除子节点
-         appendChild: appendChild,  //添加子节点 尾部
-         parentNode: parentNode,  //获取父亲子节点dom
-         nextSibling: nextSibling,     //获取下一个兄弟节点
-         tagName: tagName,   //获取dom标签名称
-         setTextContent: setTextContent, //  //设置dom 文本
-         setStyleScope: setStyleScope  //设置组建样式的作用域
+         insertBefore: insertBefore,  // 插入节点 在xxx  dom 前面插入一个节点
+         removeChild: removeChild,   // 删除子节点
+         appendChild: appendChild,  // 添加子节点 尾部
+         parentNode: parentNode,  // 获取父亲子节点dom
+         nextSibling: nextSibling,     // 获取下一个兄弟节点
+         tagName: tagName,   // 获取dom标签名称
+         setTextContent: setTextContent, // 设置dom 文本
+         setStyleScope: setStyleScope  // 设置组建样式的作用域
          });
          modules=[
-         attrs,  // attrs包含两个方法create和update都是更新设置真实dom属性值 {create: updateAttrs,  update: updateAttrs   }
-         klass, //klass包含类包含两个方法create和update都是更新calss。其实就是updateClass方法。 设置真实dom的class
-         events, //更新真实dom的事件
-         domProps, //更新真实dom的props 属性值
-         style, // 更新真实dom的style属性。有两个方法create 和update 不过函数都是updateStyle更新真实dom的style属性值.将vonde虚拟dom的css 转义成并且渲染到真实dom的css中
-         transition // 过度动画
-         ref,  //ref创建，更新 ， 销毁 函数
-         directives //自定义指令 创建 ，更新，销毁函数
+          attrs,  // attrs包含两个方法create和update都是更新设置真实dom属性值 {create: updateAttrs,  update: updateAttrs   }
+          klass, // klass包含类包含两个方法create和update都是更新calss。其实就是updateClass方法。 设置真实dom的class
+          events, // 更新真实dom的事件
+          domProps, // 更新真实dom的props 属性值
+          style, // 更新真实dom的style属性。有两个方法create 和update 不过函数都是updateStyle更新真实dom的style属性值.将vonde虚拟dom的css 转义成并且渲染到真实dom的css中
+          transition // 过度动画
+          ref,  // ref创建，更新 ， 销毁 函数
+          directives // 自定义指令 创建 ，更新，销毁函数
          ]
          */
 
@@ -7610,15 +7618,15 @@
     var nodeOps = backend.nodeOps;
 
 
-    //  把钩子函数添加到cbs队列中  循环数字 var hooks = ['create', 'activate', 'update', 'remove', 'destroy'];
+    //  把钩子函数添加到cbs队列中 ['create', 'activate', 'update', 'remove', 'destroy'];
     for (i = 0; i < hooks.length; ++i) {
       cbs[hooks[i]] = [];
-      //循环modules 数组
+      // 循环modules 数组
       for (j = 0; j < modules.length; ++j) {
-        //判断modules上面是否有定义有  'create', 'activate', 'update', 'remove', 'destroy'
+        // 判断modules上面是否有定义有  'create', 'activate', 'update', 'remove', 'destroy'
         if (isDef(modules[j][hooks[i]])) {
-          //如果有则把他添加到cbs 对象数组中
-          cbs[hooks[i]].push(modules[j][hooks[i]]); //把钩子函数添加到cbs队列中
+          // 如果有则把他添加到cbs 对象数组中
+          cbs[hooks[i]].push(modules[j][hooks[i]]); // 把钩子函数添加到cbs队列中
         }
       }
     }
@@ -7710,54 +7718,48 @@
     }
 
     var creatingElmInVPre = 0;
-    //创建dom 节点
+    // 创建dom 节点
     function createElm (
-      vnode,  //vnode 节点，
-      insertedVnodeQueue, //插入Vnode队列
-      parentElm, //父亲节点
-      refElm,  //当前的节点的兄弟节点
-      nested,  //嵌套
-      ownerArray, //主数组 节点
-      index  //索引
+      vnode,  // vnode 节点，
+      insertedVnodeQueue, // 插入Vnode队列
+      parentElm, // 父亲节点
+      refElm,  // 当前的节点的兄弟节点
+      nested,  // 嵌套
+      ownerArray, // 主数组 节点
+      index  // 索引
     ) {
-      //判断是否定义有vnode.elm 和 定义有ownerArray
       if (isDef(vnode.elm) && isDef(ownerArray)) {
         // This vnode was used in a previous render!
         // now it's used as a new node, overwriting its elm would cause
         // potential patch errors down the road when it's used as an insertion
         // reference node. Instead, we clone the node on-demand before creating
         // associated DOM element for it.
-        //这个vnode在之前的渲染中使用过!
-        //现在它被用作一个新节点，覆盖它的elm将导致
-        //当它被用作插入时，将来可能会出现补丁错误
-        //引用节点。相反，我们在创建之前按需克隆节点
-        //关联的DOM元素。
-        //克隆一个新的节点
+        // 这个vnode是在渲染前被使用的
+        // 现在它被用作一个新节点，当它被用作插入参考节点时，覆盖它的elm将要引发潜在的补丁错误
+        // 相反，在为节点创建关联的DOM元素之前，我们按需克隆节点
 
         vnode = ownerArray[index] = cloneVNode(vnode);
       }
 
-      vnode.isRootInsert = !nested; // for transition enter check //对于过渡输入检查
-      //创建组件，并且判断它是否实例化过
+      vnode.isRootInsert = !nested; // for transition enter check
+      // 创建组件，并且判断它是否实例化过
       if (createComponent(
-        vnode, //虚拟dom vonde
-        insertedVnodeQueue, //插入Vnode队列
-        parentElm,//父亲节点
-        refElm //当前节点
+        vnode, // 虚拟dom vonde
+        insertedVnodeQueue, // 插入Vnode队列
+        parentElm,// 父亲节点
+        refElm // 当前节点
       )) {
         return
       }
 
-      var data = vnode.data;  //vnode 数据 如 属性等
-      var children = vnode.children; //vonde 子节点
-      var tag = vnode.tag;  //vonde 标签
+      var data = vnode.data;  // vnode 数据 如 属性等
+      var children = vnode.children; // vonde 子节点
+      var tag = vnode.tag;  // vonde 标签
 
-
-      if (isDef(tag)) {   //如果组件标签定义了
-
+      if (isDef(tag)) {   // 如果组件标签定义了
         {
 
-          if (data && data.pre) { //标记是否是pre 标签吧
+          if (data && data.pre) { // 标记是否是pre 标签吧
             creatingElmInVPre++;
           }
           // 检查dom 节点的tag标签 类型 是否是VPre 标签 或者是判断是否是浏览器自带原有的标签
@@ -11062,31 +11064,31 @@
   //创建补丁函数 创建虚拟dom
   /*
      var nodeOps = Object.freeze({
-     createElement: createElement$1, //创建一个真实的dom
-     createElementNS: createElementNS, //创建一个真实的dom svg方式
+     createElement: createElement$1, // 创建一个真实的dom
+     createElementNS: createElementNS, // 创建一个真实的dom svg方式
      createTextNode: createTextNode, // 创建文本节点
      createComment: createComment,  // 创建一个注释节点
-     insertBefore: insertBefore,  //插入节点 在xxx  dom 前面插入一个节点
-     removeChild: removeChild,   //删除子节点
-     appendChild: appendChild,  //添加子节点 尾部
-     parentNode: parentNode,  //获取父亲子节点dom
-     nextSibling: nextSibling,     //获取下一个兄弟节点
-     tagName: tagName,   //获取dom标签名称
-     setTextContent: setTextContent, //  //设置dom 文本
-     setStyleScope: setStyleScope  //设置组建样式的作用域
+     insertBefore: insertBefore,  // 插入节点 在xxx  dom 前面插入一个节点
+     removeChild: removeChild,   // 删除子节点
+     appendChild: appendChild,  // 添加子节点 尾部
+     parentNode: parentNode,  // 获取父亲子节点dom
+     nextSibling: nextSibling,     // 获取下一个兄弟节点
+     tagName: tagName,   // 获取dom标签名称
+     setTextContent: setTextContent, //  // 设置dom 文本
+     setStyleScope: setStyleScope  // 设置组建样式的作用域
      });
      modules=[
         attrs,  // attrs包含两个方法create和update都是更新设置真实dom属性值 {create: updateAttrs,  update: updateAttrs   }
-        klass, //klass包含类包含两个方法create和update都是更新calss。其实就是updateClass方法。 设置真实dom的class
+        klass, // klass包含类包含两个方法create和update都是更新calss。其实就是updateClass方法。 设置真实dom的class
         events, //更新真实dom的事件
-        domProps, //更新真实dom的props 属性值
+        domProps, // 更新真实dom的props 属性值
         style, // 更新真实dom的style属性。有两个方法create 和update 不过函数都是updateStyle更新真实dom的style属性值.将vonde虚拟dom的css 转义成并且渲染到真实dom的css中
         transition // 过度动画
-        ref,  //ref创建，更新 ， 销毁 函数
-        directives //自定义指令 创建 ，更新，销毁函数
+        ref,  // ref创建，更新 ， 销毁 函数
+        directives // 自定义指令 创建 ，更新，销毁函数
         ]
      */
-  //patch 把vonde 渲染成真实的dom
+  // patch 把vonde 渲染成真实的dom
   var patch = createPatchFunction(
     {
       nodeOps: nodeOps,
@@ -14844,7 +14846,7 @@
 
     //创建一个空的对象
     var cache = Object.create(null);
-    //函数科里化
+    // 函数科里化
     // 把字符串 编译变成 真正的js 并且以对象函数方式导出去
     /*********************************************************************************
        *Function: compileToFunctions 
@@ -14855,15 +14857,15 @@
        *Return:  object  对象函数 //函数返回值的说明
      **********************************************************************************/
     return function compileToFunctions (
-      template,  //字符串模板
-      options, //参数
-      vm  //vmnode
+      template,  // 字符串模板
+      options, // 参数
+      vm  // vmnode
     ) {
-      //浅拷贝参数
+      // 浅拷贝参数
       options = extend({}, options);
-      //警告
+      // 警告
       var warn$$1 = options.warn || warn;
-      //删除参数中的警告
+      // 删除参数中的警告
       delete options.warn;
 
       /* istanbul ignore if */
@@ -14886,16 +14888,16 @@
 
       // check cache 拦阻索
       /*
-             *这个选项只在完整构建版本中的浏览器内编译时可用。
-             * 详细：改变纯文本插入分隔符。
-             *
-             * 示例：
-             new Vue({
-             delimiters: ['${', '}']
-             })
-             // 分隔符变成了 ES6 模板字符串的风格
-             *
-             * */
+      *这个选项只在完整构建版本中的浏览器内编译时可用。
+      * 详细：改变纯文本插入分隔符。
+      *
+      * 示例：
+      new Vue({
+      delimiters: ['${', '}']
+      })
+      // 分隔符变成了 ES6 模板字符串的风格
+      *
+      * */
 
       var key = options.delimiters ? String(options.delimiters) + template : template;
       if (cache[key]) {
@@ -14904,8 +14906,8 @@
 
       // compile 传进来的函数
       var compiled = compile(
-        template, //模板字符串
-        options //参数
+        template, // 模板字符串
+        options // 参数
       );
 
 
@@ -14930,12 +14932,12 @@
       // turn code into functions 将代码转换为函数
       var res = {};
       var fnGenErrors = [];
-      //将compiled.render创建一个函数，如果发生错误则记录fnGenErrors错误
-      //把字符串 转化成真正的js并且以 函数的方式导出去
+      // 将compiled.render创建一个函数，如果发生错误则记录fnGenErrors错误
+      // 把字符串 转化成真正的js并且以 函数的方式导出去
       res.render = createFunction(
         compiled.render,
         fnGenErrors);
-      //字符串转化js 创建一个集合函数
+      // 字符串转化js 创建一个集合函数
       res.staticRenderFns = compiled.staticRenderFns.map(function (code) {
         return createFunction(code, fnGenErrors)
       });
@@ -14944,10 +14946,9 @@
       // this should only happen if there is a bug in the compiler itself.
       // mostly for codegen development use
       /* istanbul ignore if */
-      //检查函数生成错误。
-      //只有在编译器本身存在错误时才应该这样做。
-      //主要用于codegen开发
-      //伊斯坦布尔忽略如果*/
+      // 检查函数生成错误。
+      // 只有在编译器本身存在错误时才应该这样做。
+      // 主要用于codegen开发
       {
         if ((!compiled.errors || !compiled.errors.length) && fnGenErrors.length) {
           warn$$1(
@@ -14989,17 +14990,17 @@
 
       function compile (
         template,  //字符串模板
-        options //options 参数
+        options // options 参数
       ) {
 
 
-        //template 模板  options 参数
-        // 创建一个对象 拷贝baseOptions 拷贝到 原型 protype 中
-        var finalOptions = Object.create(baseOptions); //为虚拟dom添加基本需要的属性
+        // template 模板  options 参数
+        // 创建一个对象 拷贝baseOptions 拷贝到 原型 prototype 中
+        var finalOptions = Object.create(baseOptions); // 为虚拟dom添加基本需要的属性
 
         var errors = [];
         var tips = [];
-        //声明警告函数
+        // 声明警告函数
         finalOptions.warn = function (msg, tip) {
           (tip ? tips : errors).push(msg);
         };
@@ -15026,7 +15027,7 @@
 
 
 
-          if (options.modules) { //
+          if (options.modules) {
             finalOptions.modules = (baseOptions.modules || []).concat(options.modules);
           }
           // merge custom directives 合并定制指令
@@ -15044,17 +15045,17 @@
           // copy other options 复制其他选项
           for (var key in options) {
             if (key !== 'modules' && key !== 'directives') {
-              //浅拷贝
+              // 浅拷贝
               finalOptions[key] = options[key];
             }
           }
         }
-        //参数传进来的函数
-        //template 模板
-        //finalOptions 基本参数
+        // 参数传进来的函数
+        // template 模板
+        // finalOptions 基本参数
         var compiled = baseCompile(
-          template, //template 模板
-          finalOptions  //finalOptions 基本参数  为虚拟dom添加基本需要的属性
+          template, // template 模板
+          finalOptions  // finalOptions 基本参数  为虚拟dom添加基本需要的属性
         );
 
 
@@ -15067,20 +15068,20 @@
       }
 
       /*
-             * compile
-             *在 render 函数中编译模板字符串。只在独立构建时有效
-             var res = Vue.compile('<div><span>{{ msg }}</span></div>')
-             new Vue({
-             data: {
-                 msg: 'hello'
-             },
-                 render: res.render,
-                 staticRenderFns: res.staticRenderFns
-             })
-             *
-             *
-             *
-             * */
+      * compile
+      *在 render 函数中编译模板字符串。只在独立构建时有效
+      var res = Vue.compile('<div><span>{{ msg }}</span></div>')
+      new Vue({
+      data: {
+          msg: 'hello'
+      },
+          render: res.render,
+          staticRenderFns: res.staticRenderFns
+      })
+      *
+      *
+      *
+      * */
       return {
         compile: compile,
         compileToFunctions: createCompileToFunctionFn(compile)
