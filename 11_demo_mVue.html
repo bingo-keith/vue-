@@ -12,6 +12,11 @@
 <body>
 <div id="app">
   <div>{{ msg }}</div>
+  <div>{{ msg }}</div>
+  <div m-text="msg"></div>
+  <div><input type="text" m-model="msg"></div>
+  <div m-html="html"></div>
+  <button @click="handleChange">呵呵</button>
 </div>
 <script>
 // 核心逻辑，获取dom，遍历dom，获取{{}}，k-和@开头的，设置响应式
@@ -44,7 +49,7 @@ class Compile {
           const attrName = attr.name
           const exp = attr.value
           if(this.isDirective(attrName)) { // 指令
-            // k-text
+            // m-text
             const dir = attrName.substring(2)
             this[dir] && this[dir](node, this.$vm, exp)
           }
@@ -83,7 +88,7 @@ class Compile {
     // 指定input的value属性
     this.update(node, vm, exp, 'model')
     // 视图对模型响应
-    node.addEventLisener('input', e => {
+    node.addEventListener('input', e => {
       vm[exp] = e.target.value
     })
   }
@@ -104,15 +109,15 @@ class Compile {
     // @click = "onClick"
     let fn = vm.$options.methods && vm.$options.methods[exp]
     if(dir && fn) {
-      node.addEventLisener(dir, fn.bind(vm))
+      node.addEventListener(dir, fn.bind(vm))
     }
   }
   // 工具方法
   isDirective(attr) {
-    return attr.indexOf('k-') === 0
+    return attr.indexOf('m-') === 0
   }
   isEvent(attr) {
-    return attr.indexOf('@') === 0 || attr.indexOf('k-on')
+    return attr.indexOf('@') === 0 || attr.indexOf('m-on')
   }
   isElement(node) {
     return node.nodeType === 1
@@ -125,15 +130,15 @@ class Compile {
 </script>
 
 <script>
-  class KVue {
+  class MVue {
     constructor(options) {
       this.$options = options
       // 数据响应化
-      this.$data = options.data
+      this.$data = typeof options.data === 'function' ? options.data() : options.data
       this.observe(this.$data)
       // 新建一个Watcher观察者对象，这时候Dep.target会指向这个Watcher对象
-      // 在这里模拟render过程，为了触发test属性的get函数
-      console.log('模拟render，触发test的getter', this.$data)
+      // 在这里模拟render过程，为了触发getter函数
+      console.log('模拟render，触发getter', this.$data)
 
       new Compile(options.el, this)
 
@@ -150,7 +155,7 @@ class Compile {
       Object.keys(dataObj).forEach(key => {
         // 监听data里的每一个数据
         this.defineReactive(dataObj, key, dataObj[key])
-        // 代理data中的属性到kVue实例上
+        // 代理data中的属性到mVue实例上
         this.proxyData(key)
       })
     }
@@ -160,16 +165,19 @@ class Compile {
       const dep = new Dep()
       Object.defineProperty(obj, key, {
         get() {
+          // 收集依赖
           Dep.target && dep.addDep(Dep.target)
           return val
         },
         set(newVal) {
           if(newVal === val) return
           val = newVal
+          // 通知订阅者更新数据
           dep.notify()
         }
       })
     }
+    // 把data里的数据代理到this上，这样可以实现通过this.访问数据
     proxyData(key) {
       Object.defineProperty(this, key, {
         get() {
@@ -181,7 +189,7 @@ class Compile {
       })
     }
   }
-
+  // 依赖收集
   class Dep {
     constructor(vm, key, cb) {
       // 这里存放依赖
@@ -194,7 +202,7 @@ class Compile {
       this.deps.forEach(dep => dep.update())
     }
   }
-
+  // 观察者
   class Watcher {
     constructor(vm, key, cb) {
       this.vm = vm
@@ -214,10 +222,25 @@ class Compile {
 </script>
 
 <script>
-  const kVue = new KVue({
+  const mVue = new MVue({
     el: '#app',
-    data: {
-      msg: 'test'
+    data() {
+      return {
+        msg: 'test',
+        html: '<h1>这是h1标题</h1>'
+      }
+    },
+    created() {
+      console.log('created')
+      console.log(this)
+      setTimeout(() => {
+        this.html = '<h2>定时器修改了数据</h2>'
+      }, 2000);
+    },
+    methods: {
+      handleChange() {
+        this.msg = 'handleChange'
+      }
     }
   })
 </script>
