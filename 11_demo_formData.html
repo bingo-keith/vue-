@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>11_demo_formData</title>
+  <script src="./vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <h1>form表单元素的自定义封装</h1>
+    <input type="text" v-model="formData.name" />
+    <br/>
+    <label for="myRadio">
+      <input type="radio" name="gender" value="0" v-model="formData.sex" id="myRadio">男
+      <input type="radio" name="gender" value="1" v-model="formData.sex" id="myRadio">女
+    </label>
+    <br/>
+    <select name="hobby" v-model="formData.hobby">
+      <option value="">请选择</option>
+      <option value="suffering">上网</option>
+      <option value="sleep">睡觉</option>
+      <option value="code">写代码</option>
+    </select>
+    <div v-for="(item, index) in list">
+      <label :for="item.id">
+        <input
+          type="checkbox"
+          v-model="formData.list[index]"
+          :true-value="item"
+          false-value=""
+          :id="item.id"
+        >
+        {{item.name}}
+      </label>
+    </div>
+    <button @click="handleClick">确认</button>
+  </div>
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          list: [
+            {
+              id: 0,
+              uid: 'zs',
+              name: '张三',
+              age: 11,
+              gender: 1,
+              hobby: ['看书', '上网', '睡觉']
+            },
+            {
+              id: 1,
+              uid: 'ls',
+              name: '李四',
+              age: 22,
+              gender: 1,
+              hobby: ['编码']
+            },
+            {
+              id: 2,
+              uid: 'ww',
+              name: '王五',
+              age: 33,
+              gender: 1,
+              hobby: ['学习', '英语']
+            },
+          ],
+          formData: {
+            name: '',
+            sex: '',
+            hobby: '',
+            list: []
+          }
+        }
+      },
+      methods: {
+        handleClick() {
+          this.formData.list = this.formData.list.filter(v => v)
+          console.dir(this.formData)
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

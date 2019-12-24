@@ -10019,8 +10019,6 @@
     if (isDef(props.__ob__)) { //如果是props添加了观察者，重新克隆他，这样就可以修改了
       props = vnode.data.domProps = extend({}, props);
     }
-    consolelog(props)
-    consolelog(oldProps)
 
     for (key in oldProps) { //循环旧的props属性，如果没有定义了 就给空
       if (isUndef(props[key])) {
