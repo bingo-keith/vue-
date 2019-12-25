@@ -188,7 +188,7 @@
    */
   /**
    * Create a cached version of a pure function.
-   * 创建纯函数的缓存版本。
+.   * 创建纯函数的缓存版本。
    * 创建一个函数，缓存，再return 返回柯里化函数
    * 闭包用法
    */
@@ -279,7 +279,6 @@
   /* istanbul ignore next */
   //绑定事件 并且改变上下文指向
   function polyfillBind(fn, ctx) {
-    // TODO 这个方法的写法，标记一下，稍后再看
     function boundFn(a) {
       var l = arguments.length;
       return l
@@ -998,13 +997,11 @@
   Dep.prototype.removeSub = function removeSub(sub) {
     remove(this.subs, sub);
   };
-  // TODO 该方法深入了解一下
   // 为Watcher 添加为Watcher.newDeps.push(dep); 一个dep对象
   Dep.prototype.depend = function depend() {
     // 添加一个dep,target是Watcher,dep就是dep对象
     if (Dep.target) {
       // 向指令添加依赖项
-      // TODO 这个方法在哪里定义的？
       Dep.target.addDep(this);
     }
   };
@@ -1014,7 +1011,7 @@
     var subs = this.subs.slice(); // 转换成数组
     for (var i = 0, l = subs.length; i < l; i++) {
       // 更新数据
-      subs[i].update(); // TODO 该方法查找一下
+      subs[i].update();
     }
   };
 
@@ -1858,12 +1855,11 @@
    */
   function checkComponents(options) {
     for (var key in options.components) {
-      // 验证组件名称 必须是大小写，并且是-横杆
+      // 验证组件名称 驼峰命令或中划线命名
       validateComponentName(key);
     }
   }
 
-  //验证组件名称 必须是大小写，并且是-横杆
   function validateComponentName(name) {
     if (!/^[a-zA-Z][\w-]*$/.test(name)) {
       warn(
@@ -1910,7 +1906,7 @@
 
           res[name] = { type: null };
         } else {
-          // 如果是使用数组语法，props必须是字符串
+          // 如果是使用数组语法，prop必须是字符串
           warn('props must be strings when using array syntax.');
         }
       }
@@ -2584,7 +2580,7 @@
           // 如果不是函数则报错
           handleError(e, ctx, 'nextTick');
         }
-      } else if (_resolve) { // TODO 这个分支判断是什么场景？
+      } else if (_resolve) {
         // _resolve 如果存在则执行
         _resolve(ctx);
       }
@@ -3496,6 +3492,9 @@
         // optimize hook:event cost by using a boolean flag marked at registration
         // instead of a hash lookup
         // 优化 hook：事件成本通过使用一个在注册时标记的布尔类型的标志来计算
+        // 这里可以监听组件的生命周期
+        // 适用场景：监听子组件挂载mounted就做一些逻辑处理
+        // 写法：<Child @hook:mounted="doSomething" />
         if (hookRE.test(event)) {
           vm._hasHookEvent = true;
         }
@@ -3771,7 +3770,6 @@
       if (!prevVnode) { // 如果这个prevVnode不存在表示上一次没有创建过vnode，这个组件或者new Vue 是第一次进来
         // initial render    初次渲染
         //更新虚拟dom
-        // TODO __patch__ 方法深入了解一下
         vm.$el = vm.__patch__(
           vm.$el, // 真正的dom
           vnode, // vnode
@@ -3811,7 +3809,7 @@
     Vue.prototype.$forceUpdate = function () {
       var vm = this;
       if (vm._watcher) {
-        vm._watcher.update(); // TODO 核心方法 update 了解一下
+        vm._watcher.update();
       }
     };
 
@@ -4128,7 +4126,6 @@
         }
       }
     }
-    // TODO 是否存在生命周期钩子的事件侦听器
     // @hook:created="handleChildCreated
     if (vm._hasHookEvent) {
       vm.$emit('hook:' + hook);
@@ -4580,7 +4577,6 @@
       }
       var i = this.deps.length;
       while (i--) {
-        // TODO 取消订阅。深入了解一下该方法
         this$1.deps[i].removeSub(this$1);
       }
       this.active = false;
@@ -4970,7 +4966,6 @@
     )
   }
 
-  // TODO 待会看一下这个方法
   // 数据绑定，$watch方法
   function stateMixin(Vue) {
     // flow somehow has problems with directly declared definition object
@@ -5059,7 +5054,6 @@
     }
   }
 
-  // TODO 看下这个方法 initInjections
   //初始化 inject
   function initInjections(vm) {
     //provide 和 inject 主要为高阶插件/组件库提供用例。并不推荐直接用于应用程序代码中。
@@ -5481,7 +5475,6 @@
     parent, //vm vue实例化，如果parent也组件 也可能是VueComponent 构造函数 实例化的对象
     Ctor  //VueComponent 构造函数
   ) {
-    // TODO 这个方法不懂什么意思，要查一下
     console.log([
       data, // vonde 虚拟dom的属性数据
       props,  //props 属性
@@ -6174,7 +6167,6 @@
           context // vm vue实例化的对象
         );
       } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) { // 如果是Vue组件
-        // TODO 看下这个是什么场景
         //Ctor是VueComponent 组件构造函数
         vnode = createComponent(
           Ctor,  //组件构造函数
@@ -6461,7 +6453,7 @@
         initInternalComponent(vm, options);
       } else {
         // 合并配置 将两个对象合成一个对象 优先取值子值
-        // 并且生命周期始终为一个数组:1762行
+        // 并且生命周期始终为一个数组
         vm.$options = mergeOptions(
           resolveConstructorOptions(vm.constructor), //  //解析constructor上的options属性的
           options || {},
@@ -6615,8 +6607,7 @@
     this._init(options);
   }
 
-  // TODO Vue.prototype里的$inspect 是从哪里来的
-  initMixin(Vue); // 给vue原型绑定_init方法
+  initMixin(Vue); // 给vue原型绑定_init方法\
   stateMixin(Vue); // 给vue原型绑定$delete, $set, $watch方法，绑定$data, $props属性（给属性绑定set和get，实现reactive）
   eventsMixin(Vue); // 给vue原型绑定$off, $on, $once方法
   lifecycleMixin(Vue); // 给vue原型绑定$destroy, $emit, $forceUpdate, _update方法
@@ -6626,7 +6617,6 @@
   /*  */
   // 初始化vue 安装插件函数
   function initUse(Vue) {
-    // TODO 看一下use方法
     //安装 Vue.js 插件。
     Vue.use = function (plugin) {
       var installedPlugins = (this._installedPlugins || (this._installedPlugins = []));
@@ -6660,7 +6650,6 @@
   /*  */
   //初始化 vue extend 函数
   function initExtend(Vue) {
-    // TODO 看一下extend方法
     /**
      * Each instance constructor, including Vue, has a unique
      * cid. This enables us to create wrapped "child
@@ -6783,7 +6772,6 @@
      *  为vue 添加 静态方法component，directive，，filter
      * */
   function initAssetRegisters(Vue) {
-    // TODO 看一下vue静态方法的扩展
     /**
      * Create asset registration methods.
      *
@@ -6937,7 +6925,6 @@
 
     // 渲染 keepAlive 组件
     render: function render() {
-      // TODO 这里看一下keep-alive方法
       var slot = this.$slots.default; //获取插槽
       var vnode = getFirstComponentChild(slot); // 获取插槽子组件
       var componentOptions = vnode && vnode.componentOptions; //获取组件参数
@@ -6964,7 +6951,7 @@
           // so cid alone is not enough (#3269)
           //同一个构造函数可以注册为不同的本地组件
           //单靠cid是不够的(#3269)
-          //这里三木是 判断组件是否有cid 如果有 则 判断 是否有组件标签，如果有组件标签则返回 '::'+组件标签，如果没有组件标签则返回空。如果没有 判断组件是否有cid 则返回 vnode.key
+          //这里三目是 判断组件是否有cid 如果有 则 判断 是否有组件标签，如果有组件标签则返回 '::'+组件标签，如果没有组件标签则返回空。如果没有 判断组件是否有cid 则返回 vnode.key
 
           ? componentOptions.Ctor.cid + (componentOptions.tag ?
             ("::" + (componentOptions.tag)) :
@@ -7582,7 +7569,6 @@
     return map
   }
 
-  // TODO 看下这个方法
   // 创建虚拟dom
   function createPatchFunction(backend) {
     /*
