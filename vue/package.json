@@ -146,8 +146,5 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  },
-  "__npminstall_done": "Wed Dec 25 2019 14:22:37 GMT+0800 (GMT+08:00)",
-  "_from": "vue@2.6.11",
-  "_resolved": "https://registry.npm.taobao.org/vue/download/vue-2.6.11.tgz"
+  }
 }
