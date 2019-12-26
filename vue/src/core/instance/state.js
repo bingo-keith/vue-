@@ -320,6 +320,7 @@ export function stateMixin (Vue: Class<Component>) {
   // flow somehow has problems with directly declared definition object
   // when using Object.defineProperty, so we have to procedurally build up
   // the object here.
+  // 在直接用object.defineProperty定义一个对象时flow会有一些问题，所以我们必须要循序渐进
   const dataDef = {}
   dataDef.get = function () { return this._data }
   const propsDef = {}
@@ -336,12 +337,13 @@ export function stateMixin (Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
+  // 这里把data和props里的数据绑定到实例this上，此时this.xxx === this.$data同时this.xxx === this._data
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
-
+  // 增加或删除一个属性值，该值为响应式的
   Vue.prototype.$set = set
   Vue.prototype.$delete = del
-
+  // 给实例this添加一个$watch方法，该方法返回一个解绑的unwatchFn方法
   Vue.prototype.$watch = function (
     expOrFn: string | Function,
     cb: any,
