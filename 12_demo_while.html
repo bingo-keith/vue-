@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>test_while</title>
+</head>
+
+<body>
+    <script>
+        // var options = {
+        //     parent: {
+        //         $options: {
+        //             abstract: 1
+        //         },
+        //         $parent: 2
+        //     },
+        //     abstract: 3
+        // };
+        // var parent = options.parent;
+        // if (parent && !options.abstract) {
+        //     while (parent.$options.abstract && parent.$parent) {
+        //         parent = parent.$parent
+        //     }
+        //     parent.$children.push('vm');
+        // }
+
+        /*
+         * abstract 控制取数据的深度
+         * while可以利用对象的某个字段控制循环的终止条件，而不是非要手动显示地写终止条件
+        */
+        var obj = {
+            abstract: false,
+            list: {
+                name: 'zs',
+                abstract: true,
+                children: {
+                    name: 'ls',
+                    abstract: true,
+                    children: {
+                        name: 'ww',
+                        abstract: false,
+                        children: {
+                            name: 'tt',
+                            abstract: true,
+                            children: {
+                                age: 11,
+                                sex: 1,
+                                text: '测试最里层的数据'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        var res = []
+        var list = obj.list
+        if (obj && !obj.abstract) {
+            while (list.abstract && list.name) {
+                list = list.children
+            }
+            res.push(list)
+        }
+        console.log(res)
+    </script>
+</body>
+
+</html>

@@ -14,7 +14,7 @@
       <h1>{{ message }}</h1>
     </p>
     <div>
-      <label for="inpt">姓名：<input @change="handleInput" type="text"
+      <label for="inpt">姓名：<input @change="handleInput" type="text" v-model="message"
           id="inpt" /></label>
     </div>
   </div>
