@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>demo</title>
+    <script src="./vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div>数字：{{count | filterTest}}</div>
+        <div>总共有：{{totalBtns}}个按钮</div>
+        <input type="text" v-focus v-model="userName">
+        <button
+            @click="handleOperation(btn.value)"
+            v-for="btn in btns"
+            :key="btn.id"
+        >{{btn.name}}</button>
+        <hr>
+        <!-- <demo-component></demo-component> -->
+        <child-comp propsdata="我是父组件直接传递的数据"></child-comp>
+    </div>
+    <script>
+        // Vue.component('demo-component', {
+        //     template: '<div>demo component</div>'
+        // })
+        const mixinsObj = {
+            created() {
+                console.log('mixins created')
+            }
+        }
+        const extendsObj = {
+            created() {
+                console.log('extends created')
+            }
+        }
+        const childComp = Vue.extend({
+            template: '<p>来自父组件非响应式的数据: {{childrenName}}</p>',
+            data() {
+                return {
+                    childrenName: ''
+                }
+            },
+            props: {
+                propsdata: [String, Number]
+            },
+            inject: { // 一个字符串数组，或 一个对象，对象的 key 是本地的绑定名
+                provideData: {
+                    default: () => { userName: 'test' }
+                }
+            },
+            created() {
+                this.childrenName = this.provideData.userName
+                console.log(this.propsdata, 'this.propsdata')
+                console.log(this.provideData, 'childComp.provideData')
+            }
+        })
+    </script>
+    <script>
+        new Vue({
+            el: '#app',
+            name: 'root-component',
+            components: {
+                childComp
+            },
+            provide() { // 一个对象或返回一个对象的函数
+                return {
+                    provideData: {
+                        userName: this.userName
+                    } 
+                }
+            },
+            directives: {
+                focus: {
+                    inserted(el, binding, vnode) {
+                        el.focus()
+                        console.log(el, binding, vnode, 'directives')
+                    }
+                }
+            },
+            filters: {
+                filterTest(val) {
+                    return val + 'filter'
+                }
+            },
+            extends: extendsObj,
+            mixins: [ mixinsObj ],
+            data() {
+                return {
+                    userName: 'default',
+                    count: 0,
+                    btns: [
+                        {
+                            id: 0,
+                            value: 'add',
+                            name: '增加'
+                        },
+                        {
+                            id: 1,
+                            value: 'reduce',
+                            name: '减少'
+                        }
+                    ]
+                }
+            },
+            computed: {
+                totalBtns() {
+                    return this.btns.length
+                }
+            },
+            watch: {
+                count(val, oldVal) {
+                    console.log(`count改变了，旧值${oldVal}，新值${val}`)
+                }
+            },
+            beforeCreate() {
+                // 生命周期钩子：组件实例刚被创建，组件属性计算之前，如 data 属性等
+                console.log('beforeCreate')
+            },
+            created() {
+                // 生命周期钩子：组件实例创建完成，属性已绑定，但 DOM 还未生成，el 属性还不存在
+                // 初始化渲染页面
+                console.log('created')
+            },
+            beforeMount() {
+                // 生命周期钩子：模板编译/挂载之前
+                console.log('beforeMount')
+            },
+            mounted() {
+                // 生命周期钩子：模板编译、挂载之后（此时不保证已在 document 中）
+                console.log('mounted')
+            },
+            beforeUpate() {
+                // 生命周期钩子：组件更新之前
+                console.log('beforeUpate')
+            },
+            updated() {
+                // 生命周期钩子：组件更新之后
+                console.log('updated')
+            },
+            activated() {
+                // 生命周期钩子：keep-alive 组件激活时调用
+                console.log('activated')
+            },
+            deactivated() {
+                // 生命周期钩子：keep-alive 组件停用时调用
+                console.log('deactivated')
+            },
+            beforeDestroy() {
+                // 生命周期钩子：实例销毁前调用
+                console.log('beforeDestroy')
+            },
+            destroyed() {
+                // 生命周期钩子：实例销毁后调用
+                console.log('destroyed')
+            },
+            errorCaptured(err, vm, info) {
+                // 生命周期钩子：当捕获一个来自子孙组件的错误时被调用。此钩子会收到三个参数：错误对象、发生错误的组件实例以及一个包含错误来源信息的字符串。
+                console.log(err, vm, info, 'errorCaptured')
+            },
+            methods: {
+                handleOperation(type) {
+                    type === 'add' ? this.count++ : this.count--
+                }
+            }
+        })
+    </script>
+</body>
+</html>
