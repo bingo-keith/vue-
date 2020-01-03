@@ -14,11 +14,7 @@
         <div>数字：{{count | filterTest}}</div>
         <div>总共有：{{totalBtns}}个按钮</div>
         <input type="text" v-focus v-model="userName">
-        <button
-            @click="handleOperation(btn.value)"
-            v-for="btn in btns"
-            :key="btn.id"
-        >{{btn.name}}</button>
+        <button @&~!click="handleOperation(btn.value)" v-for="btn in btns" :key="btn.id">{{btn.name}}</button>
         <hr>
         <!-- <demo-component></demo-component> -->
         <child-comp propsdata="我是父组件直接传递的数据"></child-comp>
@@ -70,7 +66,7 @@
                 return {
                     provideData: {
                         userName: this.userName
-                    } 
+                    }
                 }
             },
             directives: {
@@ -87,7 +83,7 @@
                 }
             },
             extends: extendsObj,
-            mixins: [ mixinsObj ],
+            mixins: [mixinsObj],
             data() {
                 return {
                     userName: 'default',
@@ -169,4 +165,5 @@
         })
     </script>
 </body>
+
 </html>
