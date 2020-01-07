@@ -231,7 +231,7 @@
    * 用连字符分隔的字符串。
    * camelize = cachedFn(str)=>{ var hit = cache[str];
    * return hit || (cache[str] = fn(str))}
-   * 调用一个camelize 存一个建进来 调用两次 如果建一样就返回 hit
+   * 调用一个camelize 存一个键进来 调用两次 如果键一样就返回 hit
    * 横线-的转换成驼峰写法
    * 可以让这样的的属性 v-model 变成 vModel
    */
@@ -645,7 +645,7 @@
     if (bailRE.test(path)) {
       return
     }
-    // 匹配不上  path在已点分割
+    // 匹配不上  path在以点分割
     var segments = path.split('.');
     return function (obj) {
       for (var i = 0; i < segments.length; i++) {
@@ -792,7 +792,7 @@
     /***************************************************************************************
      *函数名 ：warn
      *函数功能描述 ：    警告信息提示
-     *函数参数 ： msg： 警告信息， vm：vue对象
+     *函数参数 ： msg： 警告信息， vm：vue实例
      *函数返回值 ： void
      *作者 ：
      *函数创建日期 ：
@@ -1167,7 +1167,8 @@
     });
   });
 
-  // 方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组,只包括实例化的属性和方法，不包括原型上的。
+  // 方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组
+  // 只包括实例化的属性和方法，不包括原型上的。
   var arrayKeys = Object.getOwnPropertyNames(arrayMethods);
 
   /**
@@ -1481,16 +1482,14 @@
    * Option overwriting strategies are functions that handle
    * how to merge a parent option value and a child option
    * value into the final value.
-   * *选项重写策略是处理的函数
-   *如何合并父选项值和子选项
-   *值为最终值。
+   * 重写选项策略是处理如何合并复选项和子选项为最终值的函数
    */
   // 选择策略
   var strats = config.optionMergeStrategies;
 
   /**
    * Options with restrictions
-   * 选择与限制
+   * 限制选项
    */
   {
     strats.el = strats.propsData = function (parent, child, vm, key) {
@@ -1694,8 +1693,7 @@
    * Watchers.
    * Watchers hashes should not overwrite one
    * another, so we merge them as arrays.
-   * 观察者散列不应该覆盖一个
-   * 另一个，所以我们将它们合并为数组。
+   * 观察者hashes不应该覆盖另一个，所以我们把它们合并成数组
    * 循环childVal。获取到子节点childVal的key如果在父亲节点上面有，则先获取到父亲节点的值
    * 如果父亲节点的上没有值得获取子节点的值。 变成数组存在ret对象中。
    */
@@ -2474,16 +2472,13 @@
     var _resolve;
     callbacks.push(function () {
       if (cb) {
-        // 如果cb存在 并且是一个函数就执行
         try {
-          cb.call(ctx);
+          cb.call(ctx); // 如果cb存在 并且是一个函数就执行
         } catch (e) {
-          // 如果不是函数则报错
-          handleError(e, ctx, 'nextTick');
+          handleError(e, ctx, 'nextTick'); // 如果不是函数则报错
         }
       } else if (_resolve) {
-        // _resolve 如果存在则执行
-        _resolve(ctx);
+        _resolve(ctx); // _resolve 如果存在则执行
       }
     });
     if (!pending) {
@@ -5365,9 +5360,7 @@
    * A watcher parses an expression, collects dependencies,
    * and fires callback when the expression value changes.
    * This is used for both the $watch() api and directives.
-   * 观察者解析表达式，收集依赖，
-   * 并在表达式值更改时触发回调。
-   * 这用于$watch和directive。
+   * 观察者解析表达式，收集依赖，并在表达式值更改时触发回调。这用于$watch和directive。
    */
   // TODO 研究一下Watcher构造函数
   var Watcher = function Watcher(
@@ -5449,8 +5442,7 @@
     } finally {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
-      // “触摸”每个属性，以便它们都被跟踪为
-      // 依赖深度观察
+      // 触发每个属性，以便于它们都被跟踪为深度观察的依赖
       if (this.deep) {
         // // 如果val 有__ob__ 属性
         // if (val.__ob__) {
@@ -5479,10 +5471,10 @@
    */
   Watcher.prototype.addDep = function addDep(dep) {
     var id = dep.id; // dep.id 自增的id
-    if (!this.newDepIds.has(id)) {// 如果id存在
+    if (!this.newDepIds.has(id)) {// 如果id不存在
       this.newDepIds.add(id); // 添加一个id
       this.newDeps.push(dep); // 添加一个deps
-      if (!this.depIds.has(id)) {  // 如果depIds 不存在id则添加一个addSub 添加一个sub
+      if (!this.depIds.has(id)) {  // 如果depIds不存在id则添加一个addSub 添加一个sub
         dep.addSub(this);
       }
     }
@@ -9534,9 +9526,8 @@
   /**
    * Add class with compatibility for SVG since classList is not supported on
    * SVG elements in IE
-   * *添加与SVG兼容的类，因为不支持类列表
-   * IE中的SVG元素
-   *为真实dom 元素添加class类
+   * 添加兼容SVG的类，因为在IE中不支持SVG元素
+   * 为真实dom 元素添加class类
    */
   function addClass(el, cls) {
     /* istanbul ignore if */
@@ -12497,7 +12488,7 @@
   var ieNSPrefix = /^NS\d+:/;   // 匹配 字符串    NS+数字
 
   /* istanbul ignore next */
-  // 防止ie浏览器 svu 的 bug 替换属性含有NS+数字 去除 NS+数字
+  // 防止ie浏览器 svg 的 bug 替换属性含有NS+数字 去除 NS+数字
   function guardIESVGBug(attrs) {
     var res = [];  // 属性数组
     for (var i = 0; i < attrs.length; i++) { // 循环属性
@@ -12712,13 +12703,10 @@
    * 1. Hoist them into constants, so that we no longer need to
    *    create fresh nodes for them on each re-render;
    * 2. Completely skip them in the patching process.
-   * 优化器的目标:遍历生成的模板AST树
-   检测纯静态的子树，即
-   永远不需要更改的DOM。
-   *一旦我们检测到这些子树，我们可以:
-   * 1。把它们变成常数，这样我们就不需要了
-   *在每次重新渲染时为它们创建新的节点;
-   * 2。在修补过程中完全跳过它们。
+   * 优化目标：遍历生成的模版AST树和子树，它们是纯静态的。例如不会改变的DOM
+   * 一旦我们检测到这些子树，我们可以：
+   * 1、把它们变为常量，这样我们不需要每次渲染的时候都创建新的节点
+   * 2、在修补过程中完全忽略它们
    * 循环递归虚拟node，标记是不是静态节点
    * 根据node.static或者 node.once 标记staticRoot的状态
    */
@@ -12885,6 +12873,7 @@
   // #4868: modifiers that prevent the execution of the listener
   // need to explicitly return null so that we can determine whether to remove
   // the listener for .once
+  // 阻止监听器执行的修饰符需要明确地返回null，这样我们才可以决定是否因为.once修饰符而移除监听
   var genGuard = function (condition) { return ("if(" + condition + ")return null;"); };
 
   var modifierCode = {
@@ -14297,7 +14286,7 @@
   /*
   * aFn 函数会多次调用 里面就能体现了
   * 用对象去缓存记录函数
-  * idToTemplate 是一个函数，根据key值来 取值，如果第二次的key还是一样则从对象中取值，而不是重新在执行一次函数
+  * idToTemplate 是一个函数，根据key值来取值，如果第二次的key还是一样则从对象中取值，而不是重新在执行一次函数
   */
 
   var idToTemplate = cached(function (id) {
@@ -14367,7 +14356,7 @@
 
         var ref = compileToFunctions(template, {
           outputSourceRange: "development" !== 'production',
-          shouldDecodeNewlines: shouldDecodeNewlines, // flase // IE在属性值中编码换行，而其他浏览器则不会
+          shouldDecodeNewlines: shouldDecodeNewlines, // false // IE在属性值中编码换行，而其他浏览器则不会
           shouldDecodeNewlinesForHref: shouldDecodeNewlinesForHref, // true chrome在a[href]中编码内容
           // res.render = createFunction(compiled.render, fnGenErrors);
           delimiters: options.delimiters, // 改变纯文本插入分隔符。修改指令的书写风格，比如默认是{{mgs}}  delimiters: ['${', '}']之后变成这样 ${mgs}
@@ -14387,11 +14376,11 @@
         var render = ref.render;
         var staticRenderFns = ref.staticRenderFns;
         /*
-               render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
-               (function anonymous( ) {
-                    with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0)])}
-                 })
-               */
+        render 是  虚拟dom，需要执行的编译函数 类似于这样的函数
+        (function anonymous( ) {
+            with(this){return _c('div',{attrs:{"id":"app"}},[_c('input',{directives:[{name:"info",rawName:"v-info"},{name:"data",rawName:"v-data"}],attrs:{"type":"text"}}),_v(" "),_m(0)])}
+          })
+        */
         options.render = render;
         options.staticRenderFns = staticRenderFns;
 

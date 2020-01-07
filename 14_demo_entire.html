@@ -14,7 +14,13 @@
         <div>数字：{{count | filterTest}}</div>
         <div>总共有：{{totalBtns}}个按钮</div>
         <input type="text" v-focus v-model="userName">
-        <button @&~!click="handleOperation(btn.value)" v-for="btn in btns" :key="btn.id">{{btn.name}}</button>
+        <!--
+            capture： !
+            once: ~
+            passive: &
+            usage: @&~!click="handleOperation(btn.value)"
+        -->
+        <button @click="handleOperation(btn.value)" v-for="btn in btns" :key="btn.id">{{btn.name}}</button>
         <hr>
         <!-- <demo-component></demo-component> -->
         <child-comp propsdata="我是父组件直接传递的数据"></child-comp>
@@ -129,9 +135,9 @@
                 // 生命周期钩子：模板编译、挂载之后（此时不保证已在 document 中）
                 console.log('mounted')
             },
-            beforeUpate() {
+            beforeUpdate() {
                 // 生命周期钩子：组件更新之前
-                console.log('beforeUpate')
+                console.log('beforeUpdate')
             },
             updated() {
                 // 生命周期钩子：组件更新之后
