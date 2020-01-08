@@ -942,12 +942,14 @@
    * directives subscribing to it.
    * dep是一个可以有多个订阅它指令的观察者
    */
-  // Dep构造函数  发布订阅模式/观察者模式
+  // Dep构造函数  发布订阅模式/观察者模式 Dep是订阅者Watcher对应的数据依赖
   var Dep = function Dep() {
+    //每个Dep都有唯一的ID
     this.id = uid++;
+    //subs用于存放依赖
     this.subs = [];
   };
-  // 发布订阅
+  // 发布订阅 向subs数组添加依赖
   Dep.prototype.addSub = function addSub(sub) {
     this.subs.push(sub);
   };
@@ -956,6 +958,9 @@
     remove(this.subs, sub);
   };
   // 为Watcher 添加为Watcher.newDeps.push(dep); 一个dep对象
+  // 设置某个Watcher的依赖
+  // 这里添加了Dep.target是否存在的判断，目的是判断是不是Watcher的构造函数调用
+  // 也就是说判断他是Watcher的this.get调用的，而不是普通调用
   Dep.prototype.depend = function depend() {
     // 添加一个dep,target是Watcher,dep就是dep对象
     if (Dep.target) {
@@ -973,6 +978,7 @@
       // order
       subs.sort(function (a, b) { return a.id - b.id; });
     }
+    // 通知所有绑定 Watcher。调用watcher的update()
     for (var i = 0, l = subs.length; i < l; i++) {
       // 更新数据
       subs[i].update();
@@ -982,8 +988,7 @@
   // The current target watcher being evaluated.
   // This is globally unique because only one watcher
   // can be evaluated at a time.
-  // 当前正在评估的目标观察者。
-  // 它是唯一的因为那里在任何时候只能有一个被评估的观察者
+  // 这是全局唯一的，因为任何时候都可能只有一个watcher正在评估
   Dep.target = null;
   var targetStack = [];
 
@@ -1195,9 +1200,12 @@
     this.value = value;
     this.dep = new Dep();
     this.vmCount = 0;
-    // 设置监听 value 必须是对象
+    // 给value添加__ob__属性，值就是本Observer对象，value.__ob__ = this;
+    // Vue.$data 中每个对象都有 __ob__ 属性,包括 Vue.$data对象本身
     def(value, '__ob__', this);
-    if (Array.isArray(value)) { // 判断是不是数组
+    // 判断是不是数组，不是的话调用walk()添加getter和setter
+    // 如果是数组，调用observeArray()遍历数组，为数组内每个对象添加getter和setter
+    if (Array.isArray(value)) {
       if (hasProto) {
         protoAugment(value, arrayMethods);
       } else {
@@ -1213,9 +1221,7 @@
    * Walk through all properties and convert them into
    * getter/setters. This method should only be called when
    * value type is Object.
-   * 遍历每个属性并将其转换为
-   * getter / setter。此方法只应在调用时调用
-   * 值类型是Object。
+   * 遍历每个属性并将其转换为getter / setter。只有值类型为对象时才调用此方法
    */
   Observer.prototype.walk = function walk(obj) {
     var keys = Object.keys(obj);
@@ -1231,6 +1237,7 @@
    */
   Observer.prototype.observeArray = function observeArray(items) {
     for (var i = 0, l = items.length; i < l; i++) {
+      // 如果是数组继续执行 observe 方法, 其中会继续新建 Observer 对象, 直到穷举完毕执行 walk 方法
       observe(items[i]);
     }
   };
@@ -1379,8 +1386,10 @@
    * Set a property on an object. Adds the new property and
    * triggers change notification if the property doesn't
    * already exist.
+   * 在一个对象上设置一个属性。如果属性不存在的话就添加一个新的属性和负责通知的触发器
+   * 这个方法就是设置响应式数据，如Vue.set(obj, 'name', 'zs')或Vue.set(arr, 3, 'ww')
    */
-  // 在一个对象上设置一个属性。如果属性不存在的话就添加一个新的属性和负责通知的触发器
+
   function set(target, key, val) {
     if (
       (isUndef(target) || isPrimitive(target))
@@ -1389,7 +1398,7 @@
     }
     // 如果是数组 并且key是索引
     if (Array.isArray(target) && isValidArrayIndex(key)) {
-      target.length = Math.max(target.length, key);
+      target.length = Math.max(target.length, key); // 如果是target = [1,2,3], key = 5
       // 在索引key位置删除1个元素并添加val元素
       target.splice(key, 1, val);
       return val
@@ -1401,7 +1410,8 @@
     }
     var ob = (target).__ob__;  // target对象中的原型上面的所有方法和属性，表明该数据加入过观察者中
     // vmCount 记录vue被实例化的次数
-    // 是不是vue
+    // 是不是vue并且ob已经被实例化过了
+    // ob && ob.vmCount有一个新提案【可选链】可以改为ob?.vmCount
     if (target._isVue || (ob && ob.vmCount)) {
       warn(
         'Avoid adding reactive properties to a Vue instance or its root $data ' +
@@ -4923,7 +4933,7 @@
     hydrating
   ) {
     vm.$el = el; // dom
-    // 如果参数中没有渲染
+    // 如果参数中没有渲染 这个if判断目的在检测vm.$options.render
     if (!vm.$options.render) { // 实例化vm的渲染函数，虚拟dom调用参数的渲染函数
       // 创建一个空的组件
       vm.$options.render = createEmptyVNode;
@@ -5362,7 +5372,6 @@
    * This is used for both the $watch() api and directives.
    * 观察者解析表达式，收集依赖，并在表达式值更改时触发回调。这用于$watch和directive。
    */
-  // TODO 研究一下Watcher构造函数
   var Watcher = function Watcher(
     vm, // vue实例
     expOrFn,  // 获取值的函数，或者是更新view视图函数
@@ -5400,7 +5409,7 @@
     this.expression = expOrFn.toString()
       ;
     // parse expression for getter
-    // getter的解析表达式
+    // getter的解析表达式 将watcher对象的getter设为updateComponent方法
     if (typeof expOrFn === 'function') {
       // 获取值的函数
       this.getter = expOrFn;
@@ -5426,12 +5435,12 @@
    * 计算getter，并重新收集依赖项。 获取value值
    */
   Watcher.prototype.get = function get() {
-    // 添加一个dep target
+    // 将Dep的target添加到targetStack，同时Dep的target赋值为当前watcher对象
     pushTarget(this);
     var value;
     var vm = this.vm;
     try {
-      // 获取值 如果报错 则执行catch
+      // 获取值 如果报错 则执行catch 调用updateComponent方法
       value = this.getter.call(vm, vm);
     } catch (e) {
       if (this.user) {
@@ -5457,7 +5466,7 @@
         // 为 seenObjects 深度收集val 中的key
         traverse(value);
       }
-      // 出栈一个pushTarget
+      // 出栈一个pushTarget update执行完成后，又将Dep.target从targetStack弹出
       popTarget();
       // 清理依赖项集合。
       this.cleanupDeps();
