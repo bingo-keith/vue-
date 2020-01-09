@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>demo</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="demo1">0001</div>
+    <div class="demo2">0002</div>
+    <div class="demo3">0003</div>
+    <div class="demo4">0004</div>
+    <div class="demo5">0005</div>
+  </div>
+</body>
+<script>
+  let el = document.querySelector('#app')
+  // 为提高性能和效率，将el转换成fragment进行解析编译，解析完成再添加回真实dom
+  let fragment = document.createDocumentFragment(), child
+
+  // 测试一下直接把元素push到数组中
+  // 经测试，直接把元素push到数组中，el.firstChild不会改变，导致死循环
+  // let res = []
+  // while(child = el.firstChild) {
+  //   res.push(child)
+  // }
+  // console.log(res, 'res')
+  // while (child = el.firstChild) {
+  // }
+  // console.log(child, el, 'child, el')
+
+  // 将原生节点拷贝到fragment
+  // 注意：此处的while每次循环el.firstChild都不一样，为去掉上一次循环首个元素的HTMLCollection
+  while (child = el.firstChild) {
+    fragment.appendChild(child)
+  }
+  console.log(fragment, el, 'fragment, el')
+
+  // 结论：结合文档碎片fragment和DOM方法（例如firstChild）会修改原始HTMLCollection的伪数组，可以实现把真实DOM转为文档碎片提升性能的效果
+</script>
+</html>

@@ -11,13 +11,13 @@
 
 <body>
   <div id="app">
-    <div></div>
-    <div>test</div>
-    <input type="text" v-model="msg">
-    <div v-html="str"></div>
-    <!-- TODO:bug：<div>{{msg}} {{count}}</div> 无法成功解析 -->
-    <div><span>{{ msg }}</span> -- computed计算的属性 <span>{{ count }}</span></div>
-    <button v-on:click="handleClick">确定</button>
+    <div class="mark-1"></div>
+    <div class="mark-2">{{ child.someStr }}</div>
+    <input class="mark-3" type="text" v-model="msg">
+    <div class="mark-4" v-html="str"></div>
+    <div class="mark-5"><span class="mark-5-1">{{ msg }}</span> -- computed计算的属性 <span class="mark-5-2">{{ count }}</span></div>
+    <button class="mark-6" @click="handleClick">确定</button>
+    <div class="mark-7"></div>
   </div>
   <!-- 观察者Observer和消息订阅器Dep -->
   <script>
@@ -27,24 +27,20 @@
      **/
     function Observer(data) {
       this.data = data
-      this.walk(data)
+      this.walk()
     }
 
     Observer.prototype = {
       constructor: Observer,
-      walk(data) {
+      walk() {
         const self = this
-        Object.keys(data).forEach(function(key) {
-          self.convert(key, data[key])
+        Object.keys(self.data).forEach(function(key) {
+          self.defineReactive(self.data, key, self.data[key])
         })
       },
-      convert(key, val) {
-        this.defineReactive(this.data, key, val)
-      },
       defineReactive(data, key, val) {
-        let dep = new Dep()
-        let childObj = observe(val)
-
+        let dep = new Dep() // 收集依赖
+        let childObj = observe(val) // 监听data对象内部的对象
         Object.defineProperty(data, key, {
           enumerable: true, // 可枚举
           configurable: false, // 不能再define
@@ -66,7 +62,7 @@
       }
     }
 
-    function observe(value, vm) {
+    function observe(value) {
       if (!value || typeof value !== 'object') return
       return new Observer(value)
     }
@@ -135,8 +131,7 @@
         /**
          * 1. 每次调用run()的时候会触发相应属性的getter
          * getter里面会触发dep.depend()，继而触发这里的addDep
-         * 2. 加入相应属性的dep.id已经在当前watcher的depIds里
-         * 说明不是一个新的属性
+         * 2. 假如相应属性的dep.id已经在当前watcher的depIds里说明不是一个新的属性
          * 仅仅是改变了其值而已，则不需要将当前watcher添加到该属性的dep里
          * 3. 假如相应属性是新的属性，则将当前watcher添加到新属性的dep里
          * 如通过 vm.child = {name: 'a'} 改变了 child.name 的值，child.name 就是个新属性
@@ -161,9 +156,9 @@
         return value
       },
       parseGetter(exp) {
-        if(/[^\w.$]/.test(exp)) return
+        if(/[^\w.]/.test(exp)) return
         const exps = exp.split('.')
-        return function(obj) {
+        return obj => {
           for(let i = 0, item; item = exps[i++];) {
             if(!obj) return
             obj = obj[item]
@@ -194,9 +189,9 @@
         this.compileElement(this.$fragment)
       },
       node2Fragment(el) {
-        // 为提高性能和效率，将el转换成fragment进行解析编译，解析完成再添加会真实dom
+        // 为提高性能和效率，将el转换成fragment进行解析编译，解析完成再添加回真实dom
         let fragment = document.createDocumentFragment(), child
-        // 将原生节点拷贝到fragment
+        // 将原生节点拷贝到fragment,结合fragment和firstChild会修改真实DOM
         while (child = el.firstChild) {
           fragment.appendChild(child)
         }
@@ -222,13 +217,13 @@
       compile(node) {
         const nodeAttrs = node.attributes, self = this;
         [].slice.call(nodeAttrs).forEach(attr => {
-          // 规定：指令以v-xxx命名
+          // 规定：指令以v-xxx命名或@
           const attrName = attr.name
           if (self.isDirective(attrName)) {
             const exp = attr.value
-            const dir = attrName.substring(2)
+            const dir = attrName.substring(!!~attrName.indexOf('@') ? 0 : 2)
             if (self.isEventDirective(dir)) {
-              // 事件指令，如v-on:click
+              // 事件指令，如v-on:click或者@
               compileUtil.eventHandler(node, self.$vm, exp, dir)
             } else {
               // 普通指令
@@ -242,16 +237,16 @@
         compileUtil.text(node, this.$vm, exp)
       },
       isDirective(attr) {
-        return attr.indexOf('v-') == 0
+        return attr.indexOf('v-') === 0 || attr.indexOf('@') === 0
       },
       isEventDirective(dir) {
-        return dir.indexOf('on') === 0
+        return dir.indexOf('on') === 0 || dir.indexOf('@') === 0
       },
       isElementNode(node) {
-        return node.nodeType == 1
+        return node.nodeType === 1
       },
       isTextNode(node) {
-        return node.nodeType == 3
+        return node.nodeType === 3
       },
       filterInvalidNode(nodes) {
         return [].slice.call(nodes)
@@ -294,7 +289,7 @@
         })
       },
       eventHandler(node, vm, exp, dir) {
-        let eventType = dir.split(':')[1],
+        let eventType = dir.split(':')[1] || dir.split('@')[1],
           fn = vm.$options.methods && vm.$options.methods[exp]
         if (eventType && fn) {
           node.addEventListener(eventType, fn.bind(vm), false)
@@ -303,9 +298,8 @@
       _getVMVal(vm, exp) {
         let val = vm
         exp = exp.split('.')
-        exp.forEach(function (k) {
-          val = val[k]
-        })
+        // 利用forEach循环[child, someStr]重复给val取值，
+        exp.forEach(k => val = val[k])
         return val
       },
       _setVMVal(vm, exp, value) {
@@ -327,10 +321,10 @@
      **/
     const updater = {
       textUpdater(node, value) {
-        node.textContent = typeof value === 'undefined' ? '' : value
+        node.textContent = value === void 0 ? '' : value
       },
       htmlUpdater(node, value) {
-        node.innerHTML = typeof value == 'undefined' ? '' : value;
+        node.innerHTML = value === void 0 ? '' : value;
       },
       classUpdater(node, value, oldValue) {
         const className = node.className;
@@ -339,7 +333,7 @@
         node.className = className + space + value;
       },
       modelUpdater(node, value, oldValue) {
-        node.value = typeof value === 'undefined' ? '' : value
+        node.value = value === void 0 ? '' : value
       }
     }
   </script>
@@ -347,12 +341,12 @@
   <script>
     function MVVM(options) {
       this.$options = options || {}
-      const data = this._data = this.$options.data, self = this
+      const data = this._data = typeof this.$options.data === 'function' ? this.$options.data() : this.$options.data, self = this
       // 数据代理，实现vm.xxx => vm._data.xxx
       Object.keys(data).forEach(key => self._proxyData(key))
-      this._initComputed()
-      observe(data, this)
-      this.$compile = new Compile(options.el || document.body, this)
+      self._initComputed()
+      observe(data)
+      this.$compile = new Compile(options.el || document.body, self)
     }
     MVVM.prototype = {
       constructor: MVVM,
@@ -393,11 +387,13 @@
   <script>
     const vm = new MVVM({
       el: '#app',
-      data: {
-        msg: 'Hello World!',
-        str: '<span style="color: red;">v-html渲染出的DOM</span>',
-        child: {
-          someStr: 'World'
+      data() {
+        return {
+          msg: 'Hello World!',
+          str: '<span style="color: red;">v-html渲染出的DOM</span>',
+          child: {
+            someStr: 'World'
+          }
         }
       },
       computed: {
@@ -408,13 +404,14 @@
       methods: {
         handleClick() {
           this.msg = 'Hi, everybody!'
-          this.child.someStr = 'modify'
+          this.child.someStr = '嵌套对象修改后的标题'
         }
       }
     })
     // 深度监听this.xxx里的数据
     vm.$watch('child.someStr', function() {
       console.log(arguments)
+      document.querySelector('.mark-7').innerHTML = [].slice.call(arguments).toString()
     })
   </script>
 </body>
