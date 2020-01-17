@@ -659,7 +659,7 @@
   }
 
   // can we use __proto__?
-  var hasProto = '__proto__' in {};
+  var hasProto = '__proto__' in {}; // 是否支持__proto__属性
 
   // Browser environment sniffing
   // 判断设备和浏览器
@@ -941,13 +941,11 @@
    * A dep is an observable that can have multiple
    * directives subscribing to it.
    * dep是一个可以有多个订阅它指令的观察者
+   * Dep构造函数  发布订阅模式/观察者模式 Dep是订阅者Watcher对应的数据依赖
    */
-  // Dep构造函数  发布订阅模式/观察者模式 Dep是订阅者Watcher对应的数据依赖
   var Dep = function Dep() {
-    //每个Dep都有唯一的ID
-    this.id = uid++;
-    //subs用于存放依赖
-    this.subs = [];
+    this.id = uid++; //每个Dep都有唯一的ID
+    this.subs = []; //subs用于存放依赖
   };
   // 发布订阅 向subs数组添加依赖
   Dep.prototype.addSub = function addSub(sub) {
@@ -962,10 +960,8 @@
   // 这里添加了Dep.target是否存在的判断，目的是判断是不是Watcher的构造函数调用
   // 也就是说判断他是Watcher的this.get调用的，而不是普通调用
   Dep.prototype.depend = function depend() {
-    // 添加一个dep,target是Watcher,dep就是dep对象
-    if (Dep.target) {
-      // 向指令添加依赖项
-      Dep.target.addDep(this);
+    if (Dep.target) { // 添加一个dep,target是Watcher,dep就是dep对象
+      Dep.target.addDep(this); // 向指令添加依赖项
     }
   };
   /* 通知所有的订阅者更新数据 */
@@ -980,8 +976,7 @@
     }
     // 通知所有绑定 Watcher。调用watcher的update()
     for (var i = 0, l = subs.length; i < l; i++) {
-      // 更新数据
-      subs[i].update();
+      subs[i].update(); // 更新数据
     }
   };
 
@@ -1205,14 +1200,14 @@
     def(value, '__ob__', this);
     // 判断是不是数组，不是的话调用walk()添加getter和setter
     // 如果是数组，调用observeArray()遍历数组，为数组内每个对象添加getter和setter
-    if (Array.isArray(value)) {
+    if (Array.isArray(value)) { // 如果是数组，就观察数组
       if (hasProto) {
         protoAugment(value, arrayMethods);
       } else {
         copyAugment(value, arrayMethods, arrayKeys);
       }
-      this.observeArray(value);
-    } else {
+      this.observeArray(value); // 递归调用observe方法
+    } else { // 不是数组就观察单个元素
       this.walk(value);
     }
   };
@@ -1226,7 +1221,7 @@
   Observer.prototype.walk = function walk(obj) {
     var keys = Object.keys(obj);
     for (var i = 0; i < keys.length; i++) {
-      defineReactive(obj, keys[i]);
+      defineReactive(obj, keys[i]); // 把观察的data变为响应式的数据
     }
   };
 
@@ -1347,11 +1342,11 @@
         var value = getter ? getter.call(obj) : val;
         if (Dep.target) {  // Dep.target 静态标志 标志了Dep添加了Watcher 实例化的对象
           // 添加一个dep
-          dep.depend();
+          dep.depend(); // 依赖收集
           if (childOb) {  // 如果子节点存在也添加一个dep
-            childOb.dep.depend();
-            if (Array.isArray(value)) {  // 判断是否是数组 如果是数组
-              dependArray(value);   // 则数组也添加dep
+            childOb.dep.depend(); // 依赖收集
+            if (Array.isArray(value)) {  // 如果是数组
+              dependArray(value);   // 对数组元素依赖收集
             }
           }
         }
@@ -1808,13 +1803,12 @@
 
   /**
    * Ensure all props option syntax are normalized into the
-   * 确保所有props选项语法都规范化为
    * Object-based format.
-   * 基于对象格式
+   * 确保所有props选项语法都规范化为基于对象格式
    *
    * 检查 props 数据类型
-   * normalizeProps 检查 props 数据类型，并把type标志打上。如果是数组循环props属性数组，如果val是string则把它变成驼峰写法  res[name] = {type: null}; 。如果是对象也循环props把key变成驼峰，并且判断val是不是对象如果是对象则    res[name] 是{type: val}否则    res[name] 是val。
-   *
+   * normalizeProps 检查 props 数据类型，并把type标志打上。如果是数组循环props属性数组，如果val是string则把它变成驼峰写法  res[name] = {type: null};
+   * 如果是对象也循环props把key变成驼峰，并且判断val是不是对象如果是对象则res[name] 是{type: val}否则res[name] 是val。
    */
   function normalizeProps(options, vm) {
     // 参数中有没有props
@@ -1927,6 +1921,9 @@
    * Core utility used in both instantiation and inheritance.
    * 将两个对象合成一个对象 将父值对象和子值对象合并在一起，并且优先取值子值，如果没有则取父值
    * 用于实例化和继承的核心实用程序。
+   * 把 parent 和 child 这两个对象根据一些合并策略，合并成一个新对象并返回。
+   * 比较核心的几步，先递归把 extends 和 mixins 合并到 parent 上，然后遍历 parent,
+   * 调用 mergeField，然后再遍历 child，如果 key 不在 parent 的自身属性上，则调用 mergeField
    */
   function mergeOptions(
     parent,
@@ -1934,12 +1931,10 @@
     vm
   ) {
     {
-      // 检验子组件
-      checkComponents(child); // 检查组件名称是否合法
+      checkComponents(child); // 检查子组件名称是否合法
     }
 
-    if (typeof child === 'function') {
-      // 如果child 是函数则获取他的参数
+    if (typeof child === 'function') { // 如果child 是函数则获取他的参数
       child = child.options;
     }
 
@@ -2956,6 +2951,8 @@
   // 1、当子节点包含组件时 - 因为一个函数式组件可以返回一个数组，而不是一个根节点。这种情况下，只是一个简单的标准化被需要 - 如果任何一个子节点是数组，我们用Array.prototype.concat扁平化整个的
   // 它保证了仅有1个层级，因为函数式组件已经标准化了它们的子组件
   // 循环子节点children，把他连在一起，其实就是把伪数组变成真正的数组
+  // 该方法调用场景是render函数是编译生成的
+  // 通过concat把children数组打平，让它的深度只有一层
   function simpleNormalizeChildren(children) {
     for (var i = 0; i < children.length; i++) {
       if (Array.isArray(children[i])) {
@@ -2973,6 +2970,9 @@
   // 例如，<template>, <slot>, v-for 或者当子组件被用户提供时，这些用户是手写的渲染函数或jsx。
   // 在这种情况下，一个完整的标准化需要满足所有子节点的可能的类型
   // 判断children的数据类型 而创建不同的虚拟dom vonde
+  // 该方法调用场景有2个：
+  // 1、render函数是用户手写的
+  // 2、当编译slot、v-for的时候会产生嵌套数组的情况
   function normalizeChildren(children) {
     return isPrimitive(children) // 判断数据类型是否是原始类型string，number，symbol，boolean
       ? [createTextVNode(children)] // 创建一个文本节点
@@ -2997,7 +2997,9 @@
   // 去更新它的 key。这里需要注意一点，在遍历的过程中，
   // 对这 3 种情况都做了如下处理：如果存在两个连续的 text 节点，
   // 会把它们合并成一个 text 节点。
-  // 因为单个 child 可能是一个数组类型。把这个深层的数组遍历到一层数组上面去。如果是深层数组则调用递.归 normalizeArrayChildren
+  // 因为单个 child 可能是一个数组类型。把这个深层的数组遍历到一层数组上面去。
+  // 如果是深层数组则调用递.归 normalizeArrayChildren
+  // 经过对chilren的规范化，children变成了一个类型为VNode的Array
   function normalizeArrayChildren(children, nestedIndex) {
     var res = [];
     var i, c, lastIndex, last;
@@ -3827,7 +3829,9 @@
           vnode,
           activeInstance
         );
-        // 实例方法挂载 vm
+        /* 实例方法挂载 vm
+         * hydrating 是否服务端渲染
+         **/
         child.$mount(hydrating ? vnode.elm : undefined, hydrating);
       }
     },
@@ -3907,6 +3911,7 @@
 
     // plain options object: turn it into a constructor
     // 普通选项对象:将其转换为构造函数  _base vue 的 构造函数
+    // baseCtor就是Vue，initGlobalAPI函数里Vue.options._base = Vue，同时_init函数里vm.$options = mergeOptions(...)把Vue的options扩展到了vm.$options上
     if (isObject(Ctor)) {
       Ctor = baseCtor.extend(Ctor);
     }
@@ -4010,6 +4015,8 @@
     // undefined,// 文本
     // undefined,/*当前节点的dom */
     // context, // vm vue实例化对象或者父组件。
+    // 实例化一个vnode并返回
+    // 注意，组件的vnode没有children
     var vnode = new VNode(
       ("vue-component-" + (Ctor.cid) + (name ? ("-" + name) : '')),
       data, undefined, undefined, undefined, context,
@@ -4035,10 +4042,12 @@
       options.render = inlineTemplate.render; // 如果有内联模板 获取内联模板的渲染函数
       options.staticRenderFns = inlineTemplate.staticRenderFns; // 获取静态渲染函数
     }
+    // vnode.componentOptions.Ctor 对应的就是子组件的构造函数
     return new vnode.componentOptions.Ctor(options) // 实例化 VueComponent 构造函数
   }
 
   // 安装组件钩子函数
+  // 把componentVNodeHooks 的钩子函数合并到data.hook中，在VNode执行patch 的过程中执行相关的钩子函数
   function installComponentHooks(data) {
     // 安装组件钩子函数
     var hooks = data.hook || (data.hook = {});
@@ -4127,10 +4136,10 @@
 
   // 创建虚拟dom节点
   function _createElement(
-    context, // vm vue实例化的对象
-    tag, // 节点
-    data, // 标签数据，包括属性，class style 指令等
-    children, // 子节点
+    context, // vnode上下文环境，Component
+    tag, // 标签，字符串或Component
+    data, // vnode数据，VNodeData类型，包括属性，class style 指令等
+    children, // 子节点，任意类型
     normalizationType // 1或者2
   ) {
     /**
@@ -4317,10 +4326,12 @@
     // 这样我们就得到了合适的渲染上下文。
     // args order: tag, data, children, normalizationType, alwaysNormalize
     // 通过来自于模版的函数式编译来使用内部版本
+    // 模版编译成的render函数使用
     vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
     // normalization is always applied for the public version, used in
     // user-written render functions.
     // 公共版本总是应用规范化, 用户编写的渲染功能。
+    // 用户手写render方法使用的
     vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
 
     // $attrs & $listeners are exposed for easier HOC creation.
@@ -4359,7 +4370,7 @@
       // 获取vm参数
       var ref = vm.$options;
       var render = ref.render;
-      var _parentVnode = ref._parentVnode;
+      var _parentVnode = ref._parentVnode; // 当前组件的父Vnode
 
       if (_parentVnode) {  // 判断是否有parentVnode
         // data.scopedSlots = {default: children[0]};  // 获取插槽
@@ -4716,26 +4727,22 @@
     * */
     Vue.prototype.$off = function (event, fn) {
       var vm = this;
-      // all 如果没有参数的情况下 返回 this vm
-      if (!arguments.length) {
-        // 创建一个事件对象
-        vm._events = Object.create(null);
+      if (!arguments.length) { // all 如果没有参数的情况下 删除所有的事件监听函数
+        vm._events = Object.create(null); // 创建一个事件对象
         return vm
       }
-      // array of events 如果事件是数组 则递归调用
-      if (Array.isArray(event)) {
+      if (Array.isArray(event)) { // array of events 如果事件是数组 则递归调用
         for (var i$1 = 0, l = event.length; i$1 < l; i$1++) {
           vm.$off(event[i$1], fn); // 递归调用
         }
         return vm
       }
-      // specific event 特定的事件 如果事件不存在则返回vm
-      var cbs = vm._events[event];
+      var cbs = vm._events[event]; // specific event 特定的事件 如果事件不存在则返回vm
       if (!cbs) {
         return vm
       }
-      // 如果函数不存在则清空函数对象属性
-      if (!fn) {
+       
+      if (!fn) { 
         vm._events[event] = null;
         return vm
       }
@@ -4790,7 +4797,7 @@
 
   function setActiveInstance(vm) {
     var prevActiveInstance = activeInstance;
-    activeInstance = vm;
+    activeInstance = vm; // 保持当前上下文的vue实例，它是lifecycle模块的全局变量
     return function () {
       activeInstance = prevActiveInstance;
     }
@@ -4826,14 +4833,22 @@
   // 初始化vue 更新 销毁 函数
   function lifecycleMixin(Vue) {
     // 更新数据函数
+    // 调用该方法的场景有2个：
+    // 1、首次渲染
+    // 2、数据更新
     Vue.prototype._update = function (vnode, hydrating) {
       var vm = this;
       // 获取 vue 的el节点
       var prevEl = vm.$el;
       // vue 的标准 vnode
       var prevVnode = vm._vnode;  // 标志上一个 vonde
-      var restoreActiveInstance = setActiveInstance(vm); // TODO 这个方法调用调试一下
-      vm._vnode = vnode; // 标志上一个 vonde
+      /**
+       * 利用闭包的特性：执行完函数后内部的变量还会继续保存在内存中
+       * 在返回的函数中可以使用该变量
+       * 这里是利用该特性实现两个数据的交换，第一次执行交换数据，第二次执行还原数据
+       */
+      var restoreActiveInstance = setActiveInstance(vm); // 执行交换数据
+      vm._vnode = vnode; // vnode想通过vm._render()返回的组件渲染VNode，vm._vnode和vm.$vnode是父子关系
       // Vue.prototype.__patch__ is injected in entry points 注入入口点
       // based on the rendering backend used. 基于SSR使用的
       if (!prevVnode) { // 如果这个prevVnode不存在表示上一次没有创建过vnode，这个组件或者new Vue 是第一次进来
@@ -4841,14 +4856,15 @@
         // 更新虚拟dom
         // vm.$el, // 真正的dom
         // vnode, // vnode
-        // hydrating, // 空
+        // hydrating, // 服务端渲染为true，非服务店渲染为false
         // false /* removeOnly */
         vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */);
       } else { // 如果这个prevVnode存在，表示vnode的已经创建过，只是更新数据而已
         // updates 更新  上一个旧的节点prevVnode 更新虚拟dom
         vm.$el = vm.__patch__(prevVnode, vnode);
       }
-      restoreActiveInstance(); // TODO 这个方法调用调试一下
+      // 执行还原数据
+      restoreActiveInstance();
       // update __vue__ reference
       if (prevEl) {
         prevEl.__vue__ = null;
@@ -4997,7 +5013,9 @@
     // 我们将其设置为vm。在观察者的构造函数中
     // 因为观察者的初始补丁可能调用$forceUpdate(例如inside child)
     // 组件的挂载钩子)，它依赖于vm。_watcher已经定义
-    // 创建观察者
+    // 这里起到两个作用：
+    // 1、初始化的时候会执行回调函数
+    // 2、 当vm实例中的检测的数据发生变化的时候执行回调函数
     new Watcher(vm, updateComponent, noop, {
       before: function before() {
         if (vm._isMounted && !vm._isDestroyed) {
@@ -5011,8 +5029,8 @@
     // mounted is called for render-created child components in its inserted hook
     // 手动挂载实例，调用挂载在self上
     // 在插入的钩子中为呈现器创建的子组件调用// mount
-    if (vm.$vnode == null) {
-      vm._isMounted = true;
+    if (vm.$vnode == null) { // vm.$vnode表示vue实例的父虚拟node，null表示根实例
+      vm._isMounted = true; // 表示已经挂载了
       // 执行生命周期函数mounted
       callHook(vm, 'mounted');
     }
@@ -5760,7 +5778,7 @@
           vm
         );
       } else if (!isReserved(key)) { // 如果不是 以$或者_开头
-        proxy(vm, "_data", key); // 把数据添加到监听者中
+        proxy(vm, "_data", key); // 把数据添加到监听者中，把data上的数据代理到vm实例上
       }
     }
     // observe data
@@ -5836,7 +5854,7 @@
     key,
     userDef
   ) {
-    var shouldCache = !isServerRendering(); // 如果不是node服务器 是浏览器
+    var shouldCache = !isServerRendering(); // 如果不是服务端
     if (typeof userDef === 'function') { // 属性的值如果是个函数
       sharedPropertyDefinition.get = shouldCache
         ? createComputedGetter(key) // 如果不是node服务器 是浏览器创建计算属性 获取值 收集 dep 依赖
@@ -5918,7 +5936,7 @@
           );
         }
       }
-      // 把事件放在最外层对象中，如果是函数为空则给一个空函数，如果是有函数则执行该函数
+      // 把事件放在最外层对象中，如果不是函数则给一个空函数，如果是函数则执行该函数
       vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm);
     }
   }
@@ -6093,6 +6111,7 @@
     var opts = vm.$options = Object.create(vm.constructor.options); // vm的参数
     // doing this because it's faster than dynamic enumeration. 这样做是因为它比直接枚举快。
     var parentVnode = options._parentVnode; // 只要超过一次调用就要缓存，这是个编码的好习惯
+    // 下面两行是把通过createComponentInstanceForVnode 函数传入的几个参数合并到内部的选项$options里了
     opts.parent = options.parent; // 组件的父节点
     opts._parentVnode = parentVnode; // 组件的 虚拟vonde 父节点
 
@@ -6207,6 +6226,8 @@
     /**
      Vue.extend使用基础 Vue 构造器，创建一个“子类”。参数是一个包含组件选项的对象。合并继承new 实例化中的拓展参数或者是用户直接使用Vue.extend 的拓展参数。把对象转义成组件构造函数。创建一个sub类 构造函数是VueComponent，合并options参数，把props属性和计算属性添加到观察者中。// 如果组件含有名称 则 把这个对象存到 组件名称中, 在options拓展参数的原型中能获取到该数据Sub.options.components[name] = Sub 简称Ctor，返回该构造函数
      */
+    // 构造一个Vue的子类，原型继承把一个穿对象转换一个继承于Vue的构造器Sub并返回，然后对Sub扩展了一些属性
+    // extendOptions 对应的就是前面定义的组件对象
     Vue.extend = function (extendOptions) { // 使用基础 Vue 构造器，创建一个“子类”。参数是一个包含组件选项的对象。
       extendOptions = extendOptions || {};
       var Super = this;
@@ -7018,6 +7039,7 @@
   // 创建虚拟dom
   function createPatchFunction(backend) {
     /*
+      nodeOps封装了一系列DOM操作的方法
       var nodeOps = Object.freeze({
         createElement: createElement$1, // 创建一个真实的dom
         createElementNS: createElementNS, // 创建一个真实的dom svg方式
@@ -7032,6 +7054,7 @@
         setTextContent: setTextContent, // 设置dom 文本
         setStyleScope: setStyleScope  // 设置组建样式的作用域
       });
+      modules定义了一些模块的钩子函数的实现
       modules=[
         attrs,  // attrs包含两个方法create和update都是更新设置真实dom属性值 {create: updateAttrs,  update: updateAttrs   }
         klass, // klass包含类包含两个方法create和update都是更新calss。其实就是updateClass方法。 设置真实dom的class
@@ -7135,7 +7158,8 @@
     }
 
     var creatingElmInVPre = 0;
-    // 创建dom 节点
+    // 通过虚拟节点创建真实的DOM并插入到它的父节点中
+    // 如果vnode节点不包含tag，则它有可能是一个注释或者纯文本节点，可以直接插入到父元素中
     function createElm(
       vnode,  // vnode 节点，
       insertedVnodeQueue, // 插入Vnode队列
@@ -7158,13 +7182,14 @@
       }
       vnode.isRootInsert = !nested; // for transition enter check
       // 创建组件，并且判断它是否实例化过
+      // 尝试创建子组件
       if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
         return
       }
       var data = vnode.data;  // vnode 数据 如 属性等
       var children = vnode.children; // vonde 子节点
       var tag = vnode.tag;  // vonde 标签
-      if (isDef(tag)) {   // 如果组件标签定义了
+      if (isDef(tag)) {   // vnode是否包含tag
         {
           if (data && data.pre) { // 标记是否是pre 标签吧
             creatingElmInVPre++;
@@ -7179,6 +7204,7 @@
             );
           }
         }
+        // 调用平台DOM的操作创建一个占位符元素
         vnode.elm = vnode.ns // 字符串值，可为此元素节点规定命名空间的名称。 可能是svg 或者 math 节点
           ? nodeOps.createElementNS(vnode.ns, tag) // 字符串值，可为此元素节点规定命名空间的名称。 可能是svg 或者 math 节点
           : nodeOps.createElement(tag, vnode); // html创建一个dom 节点
@@ -7189,10 +7215,12 @@
           createChildren(vnode, children, insertedVnodeQueue);
           if (isDef(data)) {
             // invokeCreateHooks，循环cbs.create 钩子函数，并且执行调用，其实cbs.create 钩子函数就是platformModules中的attrs中 updateAttrs更新属性函数。如果是组件则调用componentVNodeHooks中的 create
+            // 执行所有的create的钩子并把vnode push到insertedVnodeQueue中
             invokeCreateHooks(vnode, insertedVnodeQueue);
           }
           // 插入一个真实的dom，如果ref$$1.parentNode等于parent是。ref$$1和elm他们是兄弟节点则插入ref$$1前面
           // 如果ref$$1的ref$$1.parentNode不等于parent。那么elm就直接append到parent中
+          // 最后调用该方法把DOM插入到父节点中，因为是递归调用，子元素会有限调用insert，所以整个vnode树节点的插入顺序是先子后父
           insert(parentElm, vnode.elm, refElm);
         }
 
@@ -7215,7 +7243,7 @@
     // 如果组件已经实例化过了才会初始化组件，才会返回值为真
     function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
       var i = vnode.data; // 标签 dom 中的属性 或者是组件
-      if (isDef(i)) { // 如果i有定义
+      if (isDef(i)) { // 如果vnode是一个组件vnode
         var isReactivated = isDef(vnode.componentInstance) && i.keepAlive; // 如果已经实例化过，并且是keepAlive组件
         if (isDef(i = i.hook) && isDef(i = i.init)) { // 触发钩子函数。或者init，
           i(vnode, false /* hydrating */);
@@ -7228,7 +7256,7 @@
         if (isDef(vnode.componentInstance)) { // 组件已经实例过
           // initComponent 初始化组件
           initComponent(vnode, insertedVnodeQueue);
-          insert(parentElm, vnode.elm, refElm);
+          insert(parentElm, vnode.elm, refElm); // 完成组件的DOM插入
           // 判断是否是真的true
           if (isTrue(isReactivated)) {
             // 激活组件
@@ -7303,6 +7331,7 @@
 
     // 插入一个真实的dom，如果ref$$1.parentNode等于parent是。ref$$1和elm他们是兄弟节点则插入ref$$1前面
     // 如果ref$$1的ref$$1.parentNode不等于parent。那么elm就直接append到parent中
+    // 调用原生DOM的API进行DOM操作
     // parent,// 父真实dom
     // elm,// 当前vonde的真实dom
     // ref // 当前vonde的真实dom的兄弟节点或者不是
@@ -7813,9 +7842,9 @@
       );
     */
     // oldVnode, // 旧的vonde或者是真实的dom. 或者是没有
-    // vnode, // 新的vode
-    // hydrating,
-    // removeOnly, // 是否要全部删除标志
+    // vnode, // 执行_render后返回的VNode节点
+    // hydrating, // 是否是服务器端渲染
+    // removeOnly, // 是否要全部删除标志，给transition-group用的
     // parentElm, // 父节点 真实的dom
     // refElm// 当前节点 真实的dom
     return function patch(oldVnode, vnode, hydrating, removeOnly) {
@@ -10802,7 +10831,7 @@
   // public mount method
   Vue.prototype.$mount = function (
     el, // 真实dom 或者是string
-    hydrating // 新的虚拟dom vonde
+    hydrating // 是否是服务端渲染
   ) {
     el = el && inBrowser ? query(el) : undefined;
     return mountComponent(this, el, hydrating)
@@ -13115,6 +13144,7 @@
     // 生成状态
     // 扩展指令，on,bind，cloak,方法，
     // dataGenFns 获取到一个数组，数组中有两个函数genData和genData$1
+    // TODO: 后续看下 CodegenState 这个类
     var state = new CodegenState(options);
     // 根据el判断是否是组件，或者是否含有v-once，v-if,v-for,是否有template属性，或者是slot插槽，转换style，css等转换成虚拟dom需要渲染的参数函数
     var code = ast ? genElement(ast, state) : '_c("div")';
@@ -13126,6 +13156,7 @@
   }
 
   // 根据el判断是否是组件，或者是否含有v-once，v-if,v-for,是否有template属性，或者是slot插槽，转换style，css等转换成虚拟dom需要渲染的参数函数
+  // TODO: 后续看一下这个方法
   function genElement(el, state) {
     if (el.parent) {
       el.pre = el.pre || el.parent.pre;
@@ -14180,6 +14211,7 @@
           // options 为：
           // comments: undefined
           // delimiters: undefined
+          // outputSourceRange: true
           // shouldDecodeNewlines: false
           // shouldDecodeNewlinesForHref: true
           // copy other options 复制其他选项

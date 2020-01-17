@@ -21,7 +21,6 @@
   </div>
   <!-- 观察者Observer和消息订阅器Dep -->
   <script>
-
     /**
      * 劫持监听所有属性
      **/
@@ -385,6 +384,12 @@
   </script>
   <!-- 实例化MVVM -->
   <script>
+    /**
+     * 响应式原理：
+     * 1. 通过Observer对data做监听，并且提供订阅某个数据项变化的能力
+     * 2. 把模版通过Compile编译成一段fragment，然后解析其中的Directives，得到每个Directive所依赖的数据项和update方法
+     * 3. 通过Watcher把上述两部分结合起来，即把Directive中的数据依赖通过Watcher订阅在对应数据的Observer的Dep上。当数据变化时，就会触发Observer的Dep上的notify方法通知对应的Watcher的update，进而触发Directive的update方法来更新DOM视图，最后大道模型和视图关联起来
+     **/
     const vm = new MVVM({
       el: '#app',
       data() {
